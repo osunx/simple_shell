@@ -36,14 +36,13 @@ char *getUserName(void) {
  */
 void displayHostName(void) {
     /* Define the prompt string */
-    char prompt[] = ":$ ";
+    char prompt[] = "$ ";
     char hostname[1024]; /* Buffer to store the hostname */
     char *pwd = get_environment("PWD"); /* Get the working directory */
     int total_length;
     char *output = NULL;
-    int color_code1, color_code2, color_code3;
     /* Calculate the total length of the concatenated string */
-    int color_escape_length = 38; /* Length of ANSI escape codes for color */
+    int color_escape_length = 11; /* Length of ANSI escape codes for green color */
 
     /* Check if the shell is running in interactive mode */
     if (isInteractiveMode()) {
@@ -52,18 +51,15 @@ void displayHostName(void) {
             exit(EXIT_FAILURE);
         }
 
-        total_length = stringlen(getUserName()) + stringlen(hostname) + stringlen(pwd) + color_escape_length;
-        /* ^^ 5 for other characters and null terminator */
+        total_length = stringlen(getUserName()) + stringlen(hostname) + stringlen(pwd) + color_escape_length + 5;
+         /* ^^ 3 for other characters and null terminator */
 
         /* Allocate memory for output */
-       output = (char *)malloc(total_length * sizeof(char));
+        output = (char *)malloc(total_length);
 
         if (output != NULL) {
-            color_code1 = rand() % 8 + 30; /* Generates a random color code between 30 and 37 */
-            color_code2 = rand() % 8 + 30; /* Generates a random color code between 30 and 37 */
-            color_code3 = rand() % 8 + 30; /* Generates a random color code between 30 and 37 */
-            /* Format and concatenate the strings with color escape sequences */
-            snprintf(output, total_length, "\033[1;%dm%s@%s\033[0m\033[1;%dm:\033[0m\033[1;%dm%s\033[0m$ ", color_code1, getUserName(), hostname, color_code2, color_code3, pwd);
+            /* Format and concatenate the strings with color escape sequences */ /* ANSI escape codes for green color */
+            strinprintf(output, total_length, "\033[1;32m%s@%s:%s\033[0m# ", getUserName(), hostname, pwd);
         } else {
             /* Handle memory allocation failure */
             perror("malloc");
@@ -73,17 +69,21 @@ void displayHostName(void) {
 
     /* Write the concatenated string to stdout if in interactive mode */
     if (output != NULL) {
-        write(STDOUT_FILENO, output, stringlen(output));
+        write(0, output, stringlen(output));
 
         /* Free the allocated memory */
-        free(output);
-        free(pwd);
+        if (output != NULL) {
+	    free(output);
+	}
+	if (pwd != NULL) {
+	    free(pwd);
+	}
+	
     } else {
         /* Write dollar sign and space if not in interactive mode */
-        write(STDOUT_FILENO, prompt, stringlen(prompt));
+        write(STDIN_FILENO, prompt, stringlen(prompt));
     }
 }
-
 
 
 
@@ -98,11 +98,10 @@ size_t len = 0;
 ssize_t read;
   /* write(STDOUT_FILENO, "Enter a command: ", 17); */
   read = getline(&input, &len, stdin);
-  if (read == -1) {
-     if (input != NULL) {
-	free(input);
-     }
-    handle_errno("EOF");
+  if (read == -1)
+  {
+  free(input);
+  return (NULL);
   }
 
   /*Removal of trailing newline character*/

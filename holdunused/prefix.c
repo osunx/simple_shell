@@ -597,7 +597,10 @@ const char *error_message = strerror(errno);
 	     }  else {
               /* Handle other cases with standard messages */
               write(STDERR_FILENO, "./hsh:", 6);
-              write(STDERR_FILENO, " No such file or directory\n", 27);
+              /*write(STDERR_FILENO, program_name, strlen(program_name));*/
+              /*write(STDERR_FILENO, ": ", 2);*/
+              /*write(STDERR_FILENO, strerror(errno), strlen(strerror(errno)));*/
+              write(STDERR_FILENO, "./hsh: No such file or directory\n", 33);
               }
             exit(EXIT_FAILURE);
 
@@ -827,20 +830,10 @@ const char *error_message = strerror(errno);
             exit(EXIT_FAILURE);
 
         default:
-
-            if (stringcmp(program_name, "EOF") == 0) {
-                write(STDERR_FILENO, "./hsh: Disconnecting....\n", 25);
-                exit(EXIT_SUCCESS);
-            } else {
-               write(STDERR_FILENO, program_name, strlen(program_name));
-               write(STDERR_FILENO, ": Unknown error: ", 15);
-	       if (errno) {
-	           write(STDERR_FILENO, strerror(errno), strlen(strerror(errno)));
-		}
-               write(STDERR_FILENO, "\n", 1);
-               exit(EXIT_FAILURE);
-	    }
-     
-      }
-
+            write(STDERR_FILENO, program_name, strlen(program_name));
+            write(STDERR_FILENO, ": Unknown error: ", 15);
+            write(STDERR_FILENO, strerror(errno), strlen(strerror(errno)));
+            write(STDERR_FILENO, "\n", 1);
+            exit(EXIT_FAILURE);
+    }
 }

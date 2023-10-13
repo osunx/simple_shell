@@ -80,25 +80,25 @@ char *stringarraycpy(char **arr) {
  */
 
 char **tokenize(const char *str, char *delimiter) {
-    char *str_copy = stringdup(str); /* Create a copy of the input string */
+    char *str_copy = strdup(str); /* Create a copy of the input string */
     char *token;
     char **tokens = NULL;
     size_t count = 0;
     size_t i;
 
-        if (!str_copy) {
+    if (!str_copy) {
         perror("strdup");
-        return (NULL);
+        return NULL;
     }
 
     /* Tokenize the string using strtok */
-    token = stringtok(str_copy, delimiter);
+    token = strtok(str_copy, delimiter);
     while (token != NULL) {
         tokens = realloc(tokens, (count + 1) * sizeof(char *));
         if (!tokens) {
             perror("realloc");
             free(str_copy);
-            return (NULL);
+            return NULL;
         }
         tokens[count] = strdup(token);
         if (!tokens[count]) {
@@ -108,10 +108,10 @@ char **tokenize(const char *str, char *delimiter) {
                 free(tokens[i]);
             }
             free(tokens);
-            return (NULL);
+            return NULL;
         }
         count++;
-        token = stringtok(NULL, delimiter);
+        token = strtok(NULL, delimiter);
     }
 
     free(str_copy);
@@ -123,9 +123,9 @@ char **tokenize(const char *str, char *delimiter) {
         for (i = 0; i < count; i++) {
             free(tokens[i]);
         }
-        return (NULL);
+        return NULL;
     }
     tokens[count] = NULL;
 
-    return (tokens);
+    return tokens;
 }

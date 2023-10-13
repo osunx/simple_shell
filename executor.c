@@ -56,7 +56,7 @@ char *get_command_path(char *command) {
 
     /* If no valid path is found, return NULL and print an error message */
     snprintf(error_message, ERROR_MESSAGE_SIZE, "./hsh: 1: %s: not found\n", command);
-
+    free(command);
     /* Write the error message to STDERR_FILENO */
     write(STDERR_FILENO, error_message, stringlen(error_message));
 
@@ -81,7 +81,7 @@ int execute_command(char *command) {
     int status;
     char *full_path;
     char **modified_env;
-    /*char *holdstring;*/
+    char arrindex[2048];
 
     /*** Tokenization ***/
     char *delim = " ";
@@ -94,10 +94,11 @@ int execute_command(char *command) {
     int pipe_fd[2];
 
     /*** Tokenize the current command based on mode ***/
-    if (isInteractiveMode()) {
+    if  (isInteractiveMode()) {
         args = tokenize(command, delim);
 	/*holdstring = stringarraycpy(args);*/
-    } else {
+    }
+    else {
         argv = tokenize(command, pipe_delim);
         /*holdstring = stringarraycpy(argv);*/	
     }
@@ -142,10 +143,10 @@ int execute_command(char *command) {
     modified_env = create_environment();
     if (modified_env == NULL) {
         if (isInteractiveMode()) {
-            free(args);
+            free_environment(args);
         } else {
             if (argv != NULL) {
-                free(argv);
+                free_environment(argv);
             }
         }
         exit(127);
@@ -166,8 +167,13 @@ int execute_command(char *command) {
             /*** Interactive mode: Execute the command directly ***/
 
             if (execve(args[0], args, modified_env) == -1) {
+		/*** Copy args[0] and free args array ***/
+		stringcpy(arrindex, args[0]);
+		free(command);
+		free_environment(modified_env);
+		free_environment(args);
                 /*** Handle execve failure ***/
-               handle_errno(args[0]);
+               handle_errno(arrindex);
             }
         } else {
             /*** Pipeline mode: Set up pipes and execute the command ***/
@@ -194,8 +200,13 @@ int execute_command(char *command) {
             }
 
             if (execve(argv[0], argv, modified_env) == -1) {
+		/*** Copy argv[0] and free argv array ***/
+		stringcpy(arrindex, argv[0]);
+		free(command);
+		free_environment(modified_env);
+		free_environment(argv);
                 /*** Handle execve failure ***/
-                handle_errno(argv[0]);
+                handle_errno(arrindex);
             }
         }
     } else if (child_pid > 0) {
