@@ -76,7 +76,9 @@ int main(int argc, char *argv[]) {
             /* Execute the command */
             execute_command(command);
         }
-        free(command);
+	if (command != NULL) {
+           free(command);
+	}
         if (!isInteractiveMode()) {
             return (EXIT_SUCCESS); /* Terminate the loop because it is in pipeline mode */
         }

@@ -96,7 +96,7 @@ char *read_command()
 char *input = NULL;
 size_t len = 0;
 ssize_t read;
-  /* write(STDOUT_FILENO, "Enter a command: ", 17); */
+
   read = getline(&input, &len, stdin);
   if (read == -1) {
      if (input != NULL) {

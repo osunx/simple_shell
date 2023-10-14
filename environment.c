@@ -60,7 +60,7 @@ return (envp);
  *
  * Return: 0 on success, -1 on failure.
  */
-int set_environment(const char *name, const char *value, int overwrite, int mode) {
+int set_environment(char *name, char *value, int overwrite, int mode) {
 
     /** Declare variables for new environment variable **/
     char *new_var = NULL;
@@ -81,16 +81,14 @@ int set_environment(const char *name, const char *value, int overwrite, int mode
                 new_var = (char *)malloc(name_length + value_length + 2);
                 if (new_var == NULL) {
                     perror("malloc");
-                    return -1; /** Return -1 on failure **/
+                    return (-1); /** Return -1 on failure **/
                 }
                 sprintf(new_var, "%s=%s", name, value);
                 environ[i] = new_var; /** Update the environment variable **/
-
                 if (mode) {
                     /** Print the environment after setting or overwriting **/
                     print_environment("print");
                 }
-
                 return (0); /** Return 0 on success **/
             } else {
                 return (0); /** Environment variable exists but not allowed to overwrite **/
@@ -135,9 +133,9 @@ int set_environment(const char *name, const char *value, int overwrite, int mode
         /** Print the environment after setting or creating a new variable **/
         print_environment("print");
     }
-
     return (0); /** Return 0 on success **/
 }
+
 
 
 

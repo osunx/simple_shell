@@ -63,7 +63,7 @@ bool is_integer(const char *str);
 
 /*Enviroment create - env++ functions prototypes*/
 char **create_environment(void);
-int set_environment(const char *name, const char *value, int overwrite, int mode);
+int set_environment(char *name, char *value, int overwrite, int mode);
 void remove_environment(const char *name);
 char *print_environment(char *mode);
 void free_environment(char **env_array);
@@ -76,7 +76,7 @@ char *read_command();
 
 /* Knight functions prototypes*/
 int isOnlyWhitespace(const char *str);
-char **tokenize(const char *str, char *delimiter);
+char **tokenize(char *str, char *delimiter);
 char *stringarraycpy(char **arr);
 
 /*Get path and execute command + system command prototype*/

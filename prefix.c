@@ -829,8 +829,8 @@ const char *error_message = strerror(errno);
         default:
 
             if (stringcmp(program_name, "EOF") == 0) {
-                write(STDERR_FILENO, "./hsh: Disconnecting....\n", 25);
-                exit(EXIT_SUCCESS);
+                write(STDERR_FILENO, "\n\n[Disconnected...]\n\n", 21);
+                exit(1);
             } else {
                write(STDERR_FILENO, program_name, strlen(program_name));
                write(STDERR_FILENO, ": Unknown error: ", 15);

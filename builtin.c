@@ -28,6 +28,7 @@ trimmed_input[input_length] = '\0';
 
 /* Check if the trimmed input is "exit" */
 if (strcmp(trimmed_input, "exit") == 0) {
+free(input);
 exit(0); /* Exit the shell with status 0 */
 } else if (strncmp(trimmed_input, "exit ", 5) == 0) {
 /* Check if the trimmed input starts with "exit " */
@@ -36,11 +37,13 @@ exit(0); /* Exit the shell with status 0 */
 if (is_integer(trimmed_input + 5)) {
 status = atoi(trimmed_input + 5);
 if (status >= 0) {
+free(input);
 exit(status);
 } else {
 write(STDERR_FILENO, "./hsh: 1: exit: Illegal number: ", 32);
 write(STDERR_FILENO, trimmed_input + 5, strlen(trimmed_input + 5));
 write(STDERR_FILENO, "\n", 1);
+free(input);
 exit(2); /* Exit with status 2 for an invalid exit command */
 }
 }
@@ -49,6 +52,7 @@ exit(2); /* Exit with status 2 for an invalid exit command */
 write(STDERR_FILENO, "Invalid command: ", 17);
 write(STDERR_FILENO, trimmed_input, strlen(trimmed_input));
 write(STDERR_FILENO, "\n", 1);
+free(input);
 exit(2); /* Exit with status 2 for an invalid command */
 }
 }

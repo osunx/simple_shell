@@ -169,9 +169,5 @@ In this mode, the shell should not print a prompt and should not read from stdin
 ## End of task
 
 ## Collaborators
-<<<<<<< HEAD
-## @osunx, Enoch Kwizera
-## @kwizeraenoch
-=======
-## osunx Kwizera Enoch
->>>>>>> cdf8fbca340a94335ef7cdd555af3da019d3f6d7
+## @osunx,
+## Lewis Njaci

@@ -79,16 +79,34 @@ char *stringarraycpy(char **arr) {
  * Return: An array of tokens (strings), or NULL on failure.
  */
 
-char **tokenize(const char *str, char *delimiter) {
-    char *str_copy = strdup(str); /* Create a copy of the input string */
+char **tokenize(char *str, char *delimiter) {
+    char **tokens;
     char *token;
-    char **tokens = NULL;
-    size_t count = 0;
-    size_t i;
+    char *str_copy;
+    size_t i, count = 0;
 
+    /* Check if the string is the same as the delimiter */
+    if (strcmp(str, delimiter) == 0 || str == NULL) {
+        tokens = malloc(sizeof(char *));
+        if (!tokens) {
+            perror("malloc");
+            return (NULL);
+        }
+        tokens[0] = NULL;  /* If the string is the delimiter itself, return an array with a single NULL pointer */
+        return (tokens);
+    }
+
+    str_copy = strdup(str); /* Create a copy of the input string */
     if (!str_copy) {
         perror("strdup");
-        return NULL;
+        return (NULL);
+    }
+
+    tokens = malloc(sizeof(char *)); /* Allocate memory for at least one pointer */
+    if (!tokens) {
+        perror("malloc");
+        free(str_copy);
+        return (NULL);
     }
 
     /* Tokenize the string using strtok */
@@ -98,7 +116,7 @@ char **tokenize(const char *str, char *delimiter) {
         if (!tokens) {
             perror("realloc");
             free(str_copy);
-            return NULL;
+            return (NULL);
         }
         tokens[count] = strdup(token);
         if (!tokens[count]) {
@@ -108,24 +126,19 @@ char **tokenize(const char *str, char *delimiter) {
                 free(tokens[i]);
             }
             free(tokens);
-            return NULL;
+            return (NULL);
         }
         count++;
         token = strtok(NULL, delimiter);
     }
 
     free(str_copy);
-
-    /* Add a NULL pointer at the end to indicate the end of the array */
-    tokens = realloc(tokens, (count + 1) * sizeof(char *));
+    tokens = realloc(tokens, (count + 1) * sizeof(char *));  /* Allocate space for the final NULL pointer */
     if (!tokens) {
         perror("realloc");
-        for (i = 0; i < count; i++) {
-            free(tokens[i]);
-        }
         return NULL;
     }
-    tokens[count] = NULL;
+    tokens[count] = NULL; /* Add the NULL pointer at the end */
 
-    return tokens;
+    return (tokens);
 }

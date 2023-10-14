@@ -96,24 +96,20 @@ int execute_command(char *command) {
     /*** Tokenize the current command based on mode ***/
     if  (isInteractiveMode()) {
         args = tokenize(command, delim);
-	/*holdstring = stringarraycpy(args);*/
+	if (args[0] == NULL) {
+	   /*** Return -1 if tokenization fails ***/
+	   free_environment(args);
+	   return (-1);
+	}
     }
     else {
         argv = tokenize(command, pipe_delim);
-        /*holdstring = stringarraycpy(argv);*/	
-    }
-
-    if (isInteractiveMode()) {
-	    if (args[0] == NULL) {
-		/*** Return -1 if tokenization fails ***/
-		return (-1);
-	    } 
-	} else {
-	    if (argv[0] == NULL) {
-               /*** return -1 if tokenization fails ***/
-               return (-1);
-    	    }
+	if (argv[0] == NULL) {
+	   free_environment(argv);
+	   /*** Return -1 if tokenization fails ***/
+	   return (-1);
 	}
+    }
 
     /*** Get the full path of the command if not provided with a path ***/
     if (containschars(isInteractiveMode() ? args[0] : argv[0], "/") != 1 ) {
@@ -276,11 +272,14 @@ void execute_cd(char *input) {
 
     while (command != NULL) {
         /* Check if the command is "cd -" or "cd" (with or without arguments) */
-        if (stringcmp(command, "cd") == 0 || stringcmp(command, "cd -") == 0 || startwith(command, "cd ")) {
+        if (stringcmp(command, "cd") == 0 ||
+        stringcmp(command, "cd -") == 0 || startwith(command, "cd ")) {
             /* Get the path from the command or use HOME if not provided */
             path = stringtok(command + 3, " \t");
 
-            if (path == NULL) {
+            if (stringcmp(command, "cd") == 0
+		|| stringcmp(path, "~") == 0) {
+                /* Handle "cd ~" */
                 path = get_environment("HOME");
             } else if (stringcmp(path, "-") == 0) {
                 /* Handle "cd -" */
@@ -297,7 +296,8 @@ void execute_cd(char *input) {
             /* Change the current directory */
             if (chdir(path) != 0) {
                 /* Handle the error */
-                length = strinprintf(error_message, sizeof(error_message), "./hsh: %d: cd: can't cd to %s\n", number, path);
+                length = strinprintf(error_message, sizeof(error_message),
+                "./hsh: %d: cd: can't cd to %s\n", number, path);
                 if (length < 0) {
                     perror("custom_snprintf");
                 } else {
@@ -307,15 +307,10 @@ void execute_cd(char *input) {
 
             /* Update the PWD and OLDPWD environment variables */
             if (is_interactive) {
-                if (set_environment("OLDPWD", prev_cwd, 1, 0) != 0 || set_environment("PWD", getcwd(prev_cwd, sizeof(prev_cwd)), 1, 0) != 0) {
+                if (set_environment("OLDPWD", prev_cwd, 1, 0) != 0 ||
+                set_environment("PWD", getcwd(prev_cwd, sizeof(prev_cwd)), 1, 0) != 0) {
                     perror("setenv");
                 }
-            }
-
-            /* Print the new directory if necessary (CWD) */
-            if (is_interactive) {
-                write(STDOUT_FILENO, getcwd(prev_cwd, sizeof(prev_cwd)), stringlen(getcwd(prev_cwd, sizeof(prev_cwd))));
-                write(STDOUT_FILENO, "\n", 1);
             }
         }
 
