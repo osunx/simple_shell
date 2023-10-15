@@ -98,21 +98,33 @@ char *startwith(char *string, char *prefix) {
 }
 
 /**
- * containschars2 - Check if any of the specified
+ * containschars - Check if any of the specified
  * characters are present in a string.
  * @string: The input string to be checked.
  * @target: A string containing the characters to be checked for.
  * Return: 1 if any of the characters are found, 0 otherwise.
  */
-char containschars(const char *string, char *target)
-{
-while (*string)
-{
-if (*string == *target)
-{
-return 1; /* Found the character in the string */
-}
-string++; /* Move to the next character in the string */
-}
-return 0; /* Character not found in the string */
+size_t containschars(char *string, char *target) {
+    size_t count = 0;
+    size_t stringLen;
+    size_t targetLen;
+    size_t i, z;
+
+    if (string == NULL || target == NULL) {
+        return (-1);
+    }
+
+    stringLen = strlen(string);
+    targetLen = strlen(target);
+    for (i = 0; i <= stringLen - targetLen; i++) {
+        for (z = 0; z < targetLen; z++) {
+            if (string[i + z] != target[z]) {
+                break;
+            }
+        }
+        if (z == targetLen) {
+            count++;
+        }
+    }
+    return (count);
 }

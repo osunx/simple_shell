@@ -112,7 +112,7 @@ int execute_command(char *command) {
     }
 
     /*** Get the full path of the command if not provided with a path ***/
-    if (containschars(isInteractiveMode() ? args[0] : argv[0], "/") != 1 ) {
+    if (containschars(isInteractiveMode() ? args[0] : argv[0], "/") == 0 ) {
 
         /***Get path based on mode***/
         if (isInteractiveMode()) {
@@ -256,6 +256,7 @@ void execute_cd(char *input) {
     int number = 1;
     char prev_cwd[1024]; /* Buffer to store the previous directory */
     DIR *dir = NULL; /* Directory variable declaration */
+    char **new_env;
 
     /* Check if the standard input is a terminal (interactive mode) */
     int is_interactive = isInteractiveMode();
@@ -271,19 +272,20 @@ void execute_cd(char *input) {
     command = stringtok(input_copy, "\n");
 
     while (command != NULL) {
-        /* Check if the command is "cd -" or "cd" (with or without arguments) */
-        if (stringcmp(command, "cd") == 0 ||
-        stringcmp(command, "cd -") == 0 || startwith(command, "cd ")) {
-            /* Get the path from the command or use HOME if not provided */
-            path = stringtok(command + 3, " \t");
-
-            if (stringcmp(command, "cd") == 0
-		|| stringcmp(path, "~") == 0) {
-                /* Handle "cd ~" */
+        /* Check if the command is "cd" (with or without arguments) */
+        if (startwith(command, "cd")) {
+            if (strcomdition(command, "cd", " ", 1) == 0) {
                 path = get_environment("HOME");
-            } else if (stringcmp(path, "-") == 0) {
-                /* Handle "cd -" */
-                path = get_environment("OLDPWD");
+            } else {
+                /* Get the path from the command or use HOME if not provided */
+                path = stringtok(command + 3, " \t");
+                if (stringcmp(path, "~") == 0) {
+                    /* Handle "cd ~" */
+                    path = get_environment("HOME");
+                } else if (stringcmp(path, "-") == 0) {
+                    /* Handle "cd -" */
+                    path = get_environment("OLDPWD");
+                }
             }
 
             /* Get the current directory before changing */
@@ -297,19 +299,30 @@ void execute_cd(char *input) {
             if (chdir(path) != 0) {
                 /* Handle the error */
                 length = strinprintf(error_message, sizeof(error_message),
-                "./hsh: %d: cd: can't cd to %s\n", number, path);
+                    "./hsh: %d: cd: can't cd to %s\n", number, path);
                 if (length < 0) {
                     perror("custom_snprintf");
                 } else {
                     write(STDERR_FILENO, error_message, length);
                 }
-            }
+            } else {
+                /* Update the PWD and OLDPWD environment variables */
+                if (is_interactive) {
+                    new_env = set_environment("OLDPWD", prev_cwd, 1, 0);
+                    if (new_env == NULL) {
+                        perror("setenv");
+                        free(input_copy); /* Free the allocated memory */
+                        return;
+                    }
+                    environ = new_env;
 
-            /* Update the PWD and OLDPWD environment variables */
-            if (is_interactive) {
-                if (set_environment("OLDPWD", prev_cwd, 1, 0) != 0 ||
-                set_environment("PWD", getcwd(prev_cwd, sizeof(prev_cwd)), 1, 0) != 0) {
-                    perror("setenv");
+                    new_env = set_environment("PWD", getcwd(prev_cwd, sizeof(prev_cwd)), 1, 0);
+                    if (new_env == NULL) {
+                        perror("setenv");
+                        free(input_copy); /* Free the allocated memory */
+                        return;
+                    }
+                    environ = new_env;
                 }
             }
         }
@@ -327,6 +340,8 @@ void execute_cd(char *input) {
     /* Free the allocated memory for the input copy */
     free(input_copy);
 }
+
+
 
 
 

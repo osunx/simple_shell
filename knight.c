@@ -142,3 +142,74 @@ char **tokenize(char *str, char *delimiter) {
 
     return (tokens);
 }
+
+
+/**
+ * strcomdition - Check if a string meets specific conditions
+ * @String: The input string to check
+ * @stableString: The string containing allowed stable characters
+ * @allowedString: The string containing allowed characters other than stable characters
+ * @occurence: The number of times stableString is allowed to occur
+ * Return: containsNonAllowed if the conditions are met, 0 otherwise
+ */
+
+size_t strcomdition(char *String, char *stableString, char *allowedString, size_t occurence) {
+    size_t i;
+    size_t containsNonAllowed = 0;
+    size_t whiteSpace = 0;
+    size_t occurenceCount = 0;
+    char targetStable[2];
+    size_t len;
+
+    if (String == NULL) {
+        return (-1);
+    }
+    if (stableString == NULL) {
+        return (-2);
+    } 
+    if (allowedString == NULL) {
+        return (-3);
+    }
+
+    len = strlen(stableString);
+
+    if (occurence > 0) {
+        for (i = 0; i < len; i++) {
+            targetStable[0] = stableString[i];
+            targetStable[1] = '\0';
+
+                /* Count occurrences in String */
+                occurenceCount = containschars(String, targetStable);
+
+                if (occurenceCount > occurence) {
+                    containsNonAllowed = occurenceCount;
+                }
+        }
+    }
+
+    if (containsNonAllowed == 0) {
+        i = 0;
+        while (String[i] != '\0' && strchr(stableString, String[i])) {
+            i++;
+        }
+
+        while (String[i] != '\0') {
+            if (isspace(String[i])) {
+                if (whiteSpace == 0) {
+                    whiteSpace++;
+                }
+            } else if (!strchr(stableString, String[i]) && !strchr(allowedString, String[i])) {
+                containsNonAllowed = 1;
+            }
+            i++;
+        }
+
+        if (whiteSpace != 0 && !strchr(allowedString, ' ')) {
+            return (whiteSpace);
+        }
+
+        return (containsNonAllowed);
+    }
+
+    return (containsNonAllowed);
+}

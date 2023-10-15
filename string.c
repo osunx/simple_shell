@@ -117,10 +117,10 @@ char *ret = dest; /*Store starting address of dest*/
 
 char *stringtok(char *str, char *delim)
 {
-char *tokens = NULL;
+  char *tokens = NULL;
 
-/* Tokenize the input string */
-tokens = strtok(str, delim);
+  /* Tokenize the input string */
+  tokens = strtok(str, delim);
 
-return (tokens);
+ return (tokens);
 }

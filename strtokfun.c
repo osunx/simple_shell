@@ -33,7 +33,7 @@ dest[i] = '\0';
  * or NULL on failure.
  */
 
-char **stringsplit(const char *str, const char *delim)
+char **stringsplit(const char *str, char *delim)
 {
 char **tokens = NULL;
 char *token, **new_tokens;
@@ -122,7 +122,7 @@ return (tokens);
  * Return: A pointer to the next token, or NULL if no more tokens are found.
  */
 
-char *customstrtok(char *str, const char *delim)
+char *customstrtok(char *str, char *delim)
 {
 static char *last_token = NULL;
 char *token;

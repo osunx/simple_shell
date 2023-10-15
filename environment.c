@@ -60,14 +60,15 @@ return (envp);
  *
  * Return: 0 on success, -1 on failure.
  */
-int set_environment(char *name, char *value, int overwrite, int mode) {
-
+char **set_environment(char *name, char *value, int overwrite, int mode) {
     /** Declare variables for new environment variable **/
     char *new_var = NULL;
     int i;
     size_t num_vars = 0;
     char **new_environ = NULL;
+    char **envarr = NULL;
     size_t j;
+    int has_existing_environment = 0; /** Flag for existing environment **/
 
     /** Calculate the lengths of the name and value **/
     size_t name_length = strlen(name);
@@ -76,12 +77,13 @@ int set_environment(char *name, char *value, int overwrite, int mode) {
     /** Find the environment variable **/
     for (i = 0; environ[i] != NULL; i++) {
         if (strncmp(environ[i], name, name_length) == 0 && environ[i][name_length] == '=') {
+            has_existing_environment = 1; /** Set the flag for existing environment **/
             if (overwrite) {
                 /** Modify the existing environment variable **/
                 new_var = (char *)malloc(name_length + value_length + 2);
                 if (new_var == NULL) {
                     perror("malloc");
-                    return (-1); /** Return -1 on failure **/
+                    return (NULL); /** Return NULL on failure **/
                 }
                 sprintf(new_var, "%s=%s", name, value);
                 environ[i] = new_var; /** Update the environment variable **/
@@ -89,9 +91,15 @@ int set_environment(char *name, char *value, int overwrite, int mode) {
                     /** Print the environment after setting or overwriting **/
                     print_environment("print");
                 }
-                return (0); /** Return 0 on success **/
+                envarr = (char **)malloc(2 * sizeof(char *));
+                envarr[0] = new_var;
+                envarr[1] = NULL;
+                return envarr; /** Return the updated environment **/
             } else {
-                return (0); /** Environment variable exists but not allowed to overwrite **/
+                envarr = (char **)malloc(2 * sizeof(char *));
+                envarr[0] = new_var;
+                envarr[1] = NULL;
+                return envarr; /** Environment variable exists but not allowed to overwrite **/
             }
         }
     }
@@ -100,7 +108,7 @@ int set_environment(char *name, char *value, int overwrite, int mode) {
     new_var = (char *)malloc(name_length + value_length + 2);
     if (new_var == NULL) {
         perror("malloc");
-        return (-1); /** Return -1 on failure **/
+        return (NULL); /** Return NULL on failure **/
     }
     sprintf(new_var, "%s=%s", name, value);
 
@@ -113,8 +121,8 @@ int set_environment(char *name, char *value, int overwrite, int mode) {
     new_environ = (char **)malloc((num_vars + 2) * sizeof(char *));
     if (new_environ == NULL) {
         perror("malloc");
-        free(new_var); /** Free the newly allocated variable before returning -1 **/
-        return (-1); /** Return -1 on failure **/
+        free(new_var); /** Free the newly allocated variable before returning NULL **/
+        return (NULL); /** Return NULL on failure **/
     }
 
     /** Copy existing environment variables to the new array **/
@@ -126,15 +134,22 @@ int set_environment(char *name, char *value, int overwrite, int mode) {
     new_environ[num_vars] = new_var;
     new_environ[num_vars + 1] = NULL;
 
-    /** Update the 'environ' pointer to point to the new array **/
-    environ = new_environ;
+    /** If an old environment exists, free it before updating 'environ' **/
+    if (has_existing_environment) {
+        for (j = 0; environ[j] != NULL; j++) {
+            free(environ[j]);
+        }
+        free(environ);
+    }
 
     if (mode) {
         /** Print the environment after setting or creating a new variable **/
         print_environment("print");
     }
-    return (0); /** Return 0 on success **/
+    return (new_environ); /** Return the updated environment **/
 }
+
+
 
 
 
