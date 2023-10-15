@@ -52,7 +52,7 @@ char *stringdup(const char *str);
 int wputchar(int chars);
 void wputs(char *str);
 char *startwith(char *string, char *prefix);
-size_t containschars(char *string, char *target);
+size_t strexit(char *string, char *target);
 
 /*Custom strtok function prototypes and a strncpy clone*/
 void stringcpyall(char *dest, const char *src, size_t n);
@@ -79,6 +79,7 @@ int isOnlyWhitespace(const char *str);
 char **tokenize(char *str, char *delimiter);
 char *stringarraycpy(char **arr);
 size_t strcomdition(char *String, char *stableString, char *allowedString, size_t occurence);
+int containschars(const char *string, char *target);
 
 /*Get path and execute command + system command prototype*/
 char *get_command_path(char *command);

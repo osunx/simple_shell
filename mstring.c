@@ -98,13 +98,13 @@ char *startwith(char *string, char *prefix) {
 }
 
 /**
- * containschars - Check if any of the specified
+ * strexit - Check if any of the specified
  * characters are present in a string.
  * @string: The input string to be checked.
  * @target: A string containing the characters to be checked for.
  * Return: 1 if any of the characters are found, 0 otherwise.
  */
-size_t containschars(char *string, char *target) {
+size_t strexit(char *string, char *target) {
     size_t count = 0;
     size_t stringLen;
     size_t targetLen;
@@ -114,8 +114,8 @@ size_t containschars(char *string, char *target) {
         return (-1);
     }
 
-    stringLen = strlen(string);
-    targetLen = strlen(target);
+    stringLen = stringlen(string);
+    targetLen = stringlen(target);
     for (i = 0; i <= stringLen - targetLen; i++) {
         for (z = 0; z < targetLen; z++) {
             if (string[i + z] != target[z]) {

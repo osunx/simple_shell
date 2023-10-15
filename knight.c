@@ -79,7 +79,8 @@ char *stringarraycpy(char **arr) {
  * Return: An array of tokens (strings), or NULL on failure.
  */
 
-char **tokenize(char *str, char *delimiter) {
+char **tokenize(char *str, char *delimiter)
+{
     char **tokens;
     char *token;
     char *str_copy;
@@ -153,7 +154,8 @@ char **tokenize(char *str, char *delimiter) {
  * Return: containsNonAllowed if the conditions are met, 0 otherwise
  */
 
-size_t strcomdition(char *String, char *stableString, char *allowedString, size_t occurence) {
+size_t strcomdition(char *String, char *stableString, char *allowedString, size_t occurence)
+{
     size_t i;
     size_t containsNonAllowed = 0;
     size_t whiteSpace = 0;
@@ -179,7 +181,7 @@ size_t strcomdition(char *String, char *stableString, char *allowedString, size_
             targetStable[1] = '\0';
 
                 /* Count occurrences in String */
-                occurenceCount = containschars(String, targetStable);
+                occurenceCount = strexit(String, targetStable);
 
                 if (occurenceCount > occurence) {
                     containsNonAllowed = occurenceCount;
@@ -212,4 +214,26 @@ size_t strcomdition(char *String, char *stableString, char *allowedString, size_
     }
 
     return (containsNonAllowed);
+}
+
+
+/**
+ * containschars - Check if a character is present in a string.
+ * @string: The string to search in.
+ * @target: The character to search for.
+ *
+ * Return: 1 if the character is found, 0 otherwise.
+ */
+
+int containschars(const char *string, char *target)
+{
+    while (*string)
+    {
+        if (*string == *target)
+        {
+            return 1; /* Found the character in the string */
+        }
+        string++; /* Move to the next character in the string */
+    }
+    return 0; /* Character not found in the string */
 }

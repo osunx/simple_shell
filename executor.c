@@ -112,7 +112,7 @@ int execute_command(char *command) {
     }
 
     /*** Get the full path of the command if not provided with a path ***/
-    if (containschars(isInteractiveMode() ? args[0] : argv[0], "/") == 0 ) {
+    if (strexit(isInteractiveMode() ? args[0] : argv[0], "/") == 0) {
 
         /***Get path based on mode***/
         if (isInteractiveMode()) {
@@ -314,7 +314,6 @@ void execute_cd(char *input) {
                         free(input_copy); /* Free the allocated memory */
                         return;
                     }
-                    environ = new_env;
 
                     new_env = set_environment("PWD", getcwd(prev_cwd, sizeof(prev_cwd)), 1, 0);
                     if (new_env == NULL) {
@@ -322,7 +321,7 @@ void execute_cd(char *input) {
                         free(input_copy); /* Free the allocated memory */
                         return;
                     }
-                    environ = new_env;
+
                 }
             }
         }
@@ -339,6 +338,7 @@ void execute_cd(char *input) {
 
     /* Free the allocated memory for the input copy */
     free(input_copy);
+	
 }
 
 
