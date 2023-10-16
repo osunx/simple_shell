@@ -308,6 +308,8 @@ void execute_cd(char *input) {
                     perror("custom_snprintf");
                 } else {
                     write(STDERR_FILENO, error_message, length);
+		    free(input_copy);
+		    return;
                 }
             } else {
                 /* Update the PWD and OLDPWD environment variables */
