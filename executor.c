@@ -257,6 +257,7 @@ void execute_cd(char *input) {
     char prev_cwd[1024]; /* Buffer to store the previous directory */
     DIR *dir = NULL; /* Directory variable declaration */
     char **new_env;
+    int ispathused = 0;
 
     /* Check if the standard input is a terminal (interactive mode) */
     int is_interactive = isInteractiveMode();
@@ -276,15 +277,18 @@ void execute_cd(char *input) {
         if (startwith(command, "cd")) {
             if (strcomdition(command, "cd", " ", 1) == 0) {
                 path = get_environment("HOME");
+		ispathused++;
             } else {
                 /* Get the path from the command or use HOME if not provided */
                 path = stringtok(command + 3, " \t");
                 if (stringcmp(path, "~") == 0) {
                     /* Handle "cd ~" */
                     path = get_environment("HOME");
+		    ispathused++;
                 } else if (stringcmp(path, "-") == 0) {
                     /* Handle "cd -" */
                     path = get_environment("OLDPWD");
+		    ispathused++;
                 }
             }
 
@@ -338,6 +342,12 @@ void execute_cd(char *input) {
 
     /* Free the allocated memory for the input copy */
     free(input_copy);
+    if (ispathused) {
+	free(path);
+    }
+    if (new_env != NULL && new_env != environ) {
+	free_environment(new_env);
+    }
 	
 }
 

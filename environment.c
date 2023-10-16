@@ -58,61 +58,59 @@ return (envp);
  * @overwrite: Flag indicating whether to overwrite an existing variable.
  * @mode: Flag indicating whether to print the environment after setting.
  *
- * Return: 0 on success, -1 on failure.
+ * Return: NULL on success and not needed or return env, NULL on failure.
  */
+
 char **set_environment(char *name, char *value, int overwrite, int mode) {
-    /** Declare variables for new environment variable **/
+    /** Declare variables **/
+    size_t name_length, value_length, new_var_length, num_vars, j, i;
     char *new_var = NULL;
-    int i;
-    size_t num_vars = 0;
     char **envarr = NULL;
-    size_t j;
     int has_existing_environment = 0; /** Flag for existing environment **/
 
     /** Calculate the lengths of the name and value **/
-    size_t name_length = strlen(name);
-    size_t value_length = strlen(value);
+    name_length = strlen(name);
+    value_length = strlen(value);
+    new_var_length = name_length + value_length + 2;
 
     /** Find the environment variable **/
     for (i = 0; environ[i] != NULL; i++) {
         if (strncmp(environ[i], name, name_length) == 0 && environ[i][name_length] == '=') {
             has_existing_environment = 1; /** Set the flag for existing environment **/
+            /** If the variable exists and overwrite is allowed, modify it **/
             if (overwrite) {
-                /** Modify the existing environment variable **/
-                new_var = (char *)malloc(name_length + value_length + 2);
-                if (new_var == NULL) {
-                    perror("malloc");
-                    return (NULL); /** Return NULL on failure **/
+                snprintf(environ[i], new_var_length, "%s=%s", name, value);
+                if (strcmp(name, "PATH") == 0) {
+                    /** Free the existing PATH variable if it exists **/
+                    for (j = 0; environ[j] != NULL; j++) {
+                        if (strncmp(environ[j], "PATH=", 5) == 0) {
+                            free(environ[j]);
+                            break;
+                        }
+                    }
                 }
-                sprintf(new_var, "%s=%s", name, value);
-
-                environ[i] = new_var; /** Update the environment variable **/
                 if (mode) {
                     /** Print the environment after setting or overwriting **/
                     print_environment("print");
                 }
-                envarr = (char **)malloc(2 * sizeof(char *));
-                envarr[0] = new_var;
-                envarr[1] = NULL;
-                return (envarr); /** Return the updated environment **/
+                return (environ); /** Return NULL as environ doesn't need to be freed **/
             } else {
-                envarr = (char **)malloc(2 * sizeof(char *));
-                envarr[0] = new_var;
-                envarr[1] = NULL;
-                return (envarr); /** Environment variable exists but not allowed to overwrite **/
+                /** If the variable exists but overwrite is not allowed, return without making changes **/
+                return (NULL);
             }
         }
     }
 
     /** If the variable doesn't exist and overwriting is allowed, create it **/
-    new_var = (char *)malloc(name_length + value_length + 2);
+    new_var = (char *)malloc(new_var_length * sizeof(char));
     if (new_var == NULL) {
         perror("malloc");
         return (NULL); /** Return NULL on failure **/
     }
-    sprintf(new_var, "%s=%s", name, value);
+    snprintf(new_var, new_var_length, "%s=%s", name, value);
 
     /** Count the number of existing environment variables **/
+    num_vars = 0;
     while (environ[num_vars] != NULL) {
         num_vars++;
     }
@@ -122,12 +120,12 @@ char **set_environment(char *name, char *value, int overwrite, int mode) {
     if (envarr == NULL) {
         perror("malloc");
         free(new_var); /** Free the newly allocated variable before returning NULL **/
-        return (NULL); /** Return NULL on failure **/
+        return NULL; /** Return NULL on failure **/
     }
 
     /** Copy existing environment variables to the new array **/
     for (j = 0; j < num_vars; j++) {
-        envarr[j] = environ[j];
+        envarr[j] = strdup(environ[j]); /** Use strdup to create a duplicate **/
     }
 
     /** Add the new environment variable to the end of the array **/
@@ -146,9 +144,8 @@ char **set_environment(char *name, char *value, int overwrite, int mode) {
         /** Print the environment after setting or creating a new variable **/
         print_environment("print");
     }
-    return (envarr); /** Return the updated environment **/
+    return (envarr); /** Return the updated environment array that needs to be freed **/
 }
-
 
 
 
