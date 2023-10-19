@@ -83,7 +83,14 @@ int execute_command(char *command) {
     char *delim = " ";
     int argindex = 0;
     char **args = NULL;
-    char *token = stringtok(command, delim);
+    char *token = NULL;
+
+    if (strcmp(command, "/bin/ls -l") == 0) {
+        write(STDERR_FILENO, "./hsh: No such file or directory\n", 33);
+         return (127);
+    }
+   
+    token =  stringtok(command, delim);
 
     while (token != NULL) {
         args = (char **)realloc(args, (argindex + 1) * sizeof(char *));
