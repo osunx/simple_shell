@@ -35,9 +35,9 @@ void sigint_handler(int signum) {
 
 int main(int argc, char *argv[]) {
     char *command = NULL;
-    char *delim = "&|";
+    /*char *delim = "&|";
     char *delimone = ";";
-    char *cmd = NULL;
+    char *cmd = NULL;*/
     /* Ensure the program is called with correct arguments */
     if (argc != 1) {
         write(STDERR_FILENO, "Usage: ", 7);
@@ -60,15 +60,15 @@ int main(int argc, char *argv[]) {
         }
 
         /* Get user input */
-        cmd = read_command();
+        command = read_command();
 
-	command = cmdConstructor(cmd);
+	/**command = cmdConstructor(cmd);
 	if (strsearch(command, "alias") != NULL) {
 	    free(command);
 	    continue;
 	}
 
-        /* Check and execute built-in commands */
+         Check and execute built-in commands 
         if (stringtwocmp(command, "exit", 4) == 0) {
             execute_exit(command);
         } else if (stringtwocmp(command, "env", 3) == 0) {
@@ -79,16 +79,17 @@ int main(int argc, char *argv[]) {
             execute_separator(command);
         } else if (containschars(command, delim) == 1) {
             execute_logical_operators(command);
-        } else {
-            /* Execute the command */
+        } else {**/
+            /* Execute the command*/ 
             execute_command(command);
-        }
+       /* }*/
 	if (command != NULL) {
            free(command);
 	}
-        if (!isInteractiveMode()) {
-            return (EXIT_SUCCESS); /* Terminate the loop because it is in pipeline mode */
-        }
+	
+       /* if (!isInteractiveMode()) {
+            return (EXIT_SUCCESS); Terminate the loop because it is in pipeline mode 
+        }*/
     }
 
     return (EXIT_SUCCESS);
