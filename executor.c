@@ -80,6 +80,7 @@ int execute_command(char *command) {
     /*char *full_path;*/
     char arrindex[2048];
    /* char **modified_env;*/
+    char *errormessage = "./hsh: No such file or directory\n";
 
     char *delim = " ";
     char **args = tokenize(command, delim);
@@ -119,6 +120,8 @@ int execute_command(char *command) {
             free(command);
            /* free_environment(modified_env);*/
             free_environment(args);
+	    write(1, errormessage, stringlen(errormessage));
+	    exit(124);
             handle_errno(arrindex);
         }
     } else if (child_pid > 0) {
