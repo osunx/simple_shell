@@ -35,8 +35,8 @@ void sigint_handler(int signum) {
 
 int main(int argc, char *argv[]) {
     char *command = NULL;
-    char *delim = "&|";
-    char *delimone = ";";
+  /**  char *delim = "&|";
+    char *delimone = ";";**/
    /*char *cmd = NULL;*/
     /* Ensure the program is called with correct arguments */
     if (argc != 1) {
@@ -74,7 +74,7 @@ int main(int argc, char *argv[]) {
         /* Check and execute built-in commands */
        /** if (stringtwocmp(command, "exit", 4) == 0) {
             execute_exit(command);
-        } else*/ if (stringtwocmp(command, "env", 3) == 0) {
+        } else if (stringtwocmp(command, "env", 3) == 0) {
             execute_env();
         } else if (stringtwocmp(command, "cd", 2) == 0) {
             execute_cd(command);
@@ -82,10 +82,10 @@ int main(int argc, char *argv[]) {
             execute_separator(command);
         } else if (containschars(command, delim) == 1) {
             execute_logical_operators(command);
-        } else {
+        } else {*/
             /* Execute the command*/ 
             execute_command(command);
-        }
+        /*}*/
 	if (command != NULL) {
            free(command);
 	}

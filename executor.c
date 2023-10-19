@@ -81,7 +81,18 @@ int execute_command(char *command) {
     char **modified_env;
 
     char *delim = " ";
-    char **args = tokenize(command, delim);
+    int argindex = 0;
+    char **args = NULL;
+    char *token = stringtok(command, delim);
+
+    while (token != NULL) {
+        args = (char **)realloc(args, (argindex + 1) * sizeof(char *));
+        args[argindex] = strdup(token);
+        argindex++;
+        token = stringtok(NULL, delim);
+    }
+    args = (char **)realloc(args, (argindex + 1) * sizeof(char *));
+    args[argindex] = NULL;
 
     if (args[0] == NULL) {
         free_environment(args);
