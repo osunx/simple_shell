@@ -115,6 +115,5 @@ char **extractSubstrings(char *string, const char *keyword);
 
 
 extern char **environ;
-extern regex_t regex;
 extern char **definedalias;
 #endif /* MAIN_H */

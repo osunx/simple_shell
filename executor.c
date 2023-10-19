@@ -11,7 +11,7 @@
  */
 char *get_command_path(char *command) {
     /* Get the PATH environment variable */
-    char *path = get_environment("PATH");
+    char *path = getenv("PATH");
     /* Duplicate the PATH variable for tokenization */
     char *path_env = stringdup(path);
     /* Tokenize the PATH variable to search for the command */
@@ -27,7 +27,7 @@ char *get_command_path(char *command) {
         if (full_path == NULL) {
             perror("malloc");
             free(path_env);
-            free(path);
+           /* free(path);*/
             exit(1);  /* Handle memory allocation failure by exiting */
         }
 
@@ -39,7 +39,7 @@ char *get_command_path(char *command) {
         /* Check if the constructed path is executable */
         if (access(full_path, X_OK) == 0) {
             free(path_env);
-            free(path);
+           /* free(path);*/
             return (full_path);  /* Return the valid path */
         }
 
@@ -52,7 +52,7 @@ char *get_command_path(char *command) {
 
     /* Free allocated memory for path_env and path */
     free(path_env);
-    free(path);
+   /* free(path);*/
 
     /* If no valid path is found, return NULL and print an error message */
     snprintf(error_message, ERROR_MESSAGE_SIZE, "./hsh: 1: %s: not found\n", command);
@@ -77,52 +77,53 @@ char *get_command_path(char *command) {
 int execute_command(char *command) {
     pid_t child_pid;
     int status;
-    /*char *full_path;*/
-    char **modified_env;
-
+    char *full_path;
+    char arrindex[2048];
+    char **modified_env = NULL;
     char *delim = " ";
-    int argindex = 0;
-    char **args = NULL;
-    char *token = NULL;
-   
-    token =  stringtok(command, delim);
-
-    while (token != NULL) {
-        args = (char **)realloc(args, (argindex + 1) * sizeof(char *));
-        args[argindex] = strdup(token);
-        argindex++;
-        token = stringtok(NULL, delim);
-    }
-    args = (char **)realloc(args, (argindex + 1) * sizeof(char *));
-    args[argindex] = NULL;
+    char **args = tokenize(command, delim);
 
     if (args[0] == NULL) {
         free_environment(args);
         return (-1);
     }
 
-    if (access(command, X_OK) == -1) {
-        write(STDERR_FILENO, "./hsh: No such file or directory\n", 33);
-	free_environment(args);
-        return (-1);
+    if (strexit(args[0], "/") == 0) {
+        full_path = get_command_path(args[0]);
+        if (full_path == NULL) {
+            free_environment(args);
+            return (-1);
+        } else {
+            free(args[0]);
+            args[0] = full_path;
+        }
     }
 
-   modified_env = create_environment();
-
+    modified_env = create_environment();
+    if (modified_env == NULL) {
+        free_environment(args);
+        free_environment(args);
+        write(STDERR_FILENO, "Error: Failed to create modified environment.\n", 45);
+    }
+    
     child_pid = fork();
-    if (child_pid == 0) {
+
+    if (child_pid == -1) {
+        perror("Fork failed");
+    } else if (child_pid == 0) {
         if (execve(args[0], args, modified_env) == -1) {
-            write(STDERR_FILENO, "./hsh: No such file or directory\n", 33);
-           /* free_environment(modified_env);*/
+            stringcpy(arrindex, args[0]);
+            free(command);
+            free_environment(modified_env);
             free_environment(args);
-            exit(127);
+            handle_errno(arrindex);
         }
     } else if (child_pid > 0) {
         waitpid(child_pid, &status, 0);
     }
 
     free_environment(args);
-   /* free_environment(modified_env);*/
+    free_environment(modified_env);
 
     return (0);
 }

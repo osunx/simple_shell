@@ -4,26 +4,6 @@
 /* Define the array here */
 char **definedalias = NULL;
 
-/**
- * sigint_handler - Handle the SIGINT signal (Ctrl+C).
- * @signum: The signal number.
- */
-
-volatile sig_atomic_t g_signal_received = 0;
-
-void sigint_handler(int signum) {
-    if (signum == SIGINT) {
-        /* Handle Ctrl+C Process Termination */
-        write(STDOUT_FILENO, "trl+C received. Process Terminated...\n", 38);
-        g_signal_received = 1;
-
-        /* Display prompt to user in Interactive mode */
-        if (isInteractiveMode()) {
-            displayHostName();
-        }
-    }
-}
-
 
 /**
  * main - Entry point of the shell program.
