@@ -124,7 +124,7 @@ int execute_command(char *command) {
            /* free_environment(modified_env);*/
             free_environment(args);
 	    write(1, errormessage, stringlen(errormessage));
-	    exit(124);
+	    exit(127);
             handle_errno(arrindex);
         
     } else if (child_pid > 0) {
