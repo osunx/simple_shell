@@ -56,11 +56,11 @@ char *get_command_path(char *command) {
 
     /* If no valid path is found, return NULL and print an error message */
     snprintf(error_message, ERROR_MESSAGE_SIZE, "./hsh: 1: %s: not found\n", command);
-    free(command);
+
     /* Write the error message to STDERR_FILENO */
     write(STDERR_FILENO, error_message, stringlen(error_message));
 
-    if (!isInteractiveMode() || isInteractiveMode()) {
+    if (!isInteractiveMode()) {
         exit(127);
        }
 
@@ -74,36 +74,22 @@ char *get_command_path(char *command) {
  *
  * Return: 0 on success, -1 on failure.
  ***/
-
 int execute_command(char *command) {
     pid_t child_pid;
     int status;
     char *full_path;
+    char arrindex[2048];
     char **modified_env;
-    char arrindex[1024];
-    char **args = NULL;
-    char **argv = NULL;
-    int argc = 0;
-    int pipe_fd[2];
 
     char *delim = " ";
-    char *pipe_delim = " \t\n";
+    char **args = tokenize(command, delim);
 
-    if (isInteractiveMode()) {
-        args = tokenize(command, delim);
-        if (args == NULL || args[0] == NULL) {
-            free_environment(args);
-            return (-1);
-        }
-    } else {
-        argv = tokenize(command, pipe_delim);
-        if (argv == NULL || argv[0] == NULL) {
-            free_environment(argv);
-            return (-1);
-        }
+    if (args[0] == NULL) {
+        free_environment(args);
+        return -1;
     }
 
-    if (isInteractiveMode()) {
+    if (strexit(args[0], "/") == 0) {
         full_path = get_command_path(args[0]);
         if (full_path == NULL) {
             free_environment(args);
@@ -112,94 +98,35 @@ int execute_command(char *command) {
             free(args[0]);
             args[0] = full_path;
         }
-    } else {
-        full_path = get_command_path(argv[0]);
-        if (full_path == NULL) {
-            free_environment(argv);
-            return (-1);
-        } else {
-            free(argv[0]);
-            argv[0] = full_path;
-        }
     }
 
     modified_env = create_environment();
     if (modified_env == NULL) {
-        if (isInteractiveMode()) {
-            free_environment(args);
-        } else {
-            free_environment(argv);
-        }
-        write(STDERR_FILENO, "Error: Failed to create modified environment. Exiting with error code 127.\n", 74);
-        exit(127);
-    }
-
-    if (!isInteractiveMode() && argv != NULL) {
-        while (argv[argc] != NULL) {
-            argc++;
-        }
+        free_environment(args);
+        free_environment(args);
+        write(STDERR_FILENO, "Error: Failed to create modified environment.\n", 45);
+        return(-1);
     }
 
     child_pid = fork();
     if (child_pid == -1) {
         perror("Fork failed");
     } else if (child_pid == 0) {
-        if (isInteractiveMode()) {
-            if (execve(args[0], args, modified_env) == -1) {
-                strcpy(arrindex, args[0]);
-                free(command);
-                free_environment(modified_env);
-                free_environment(args);
-                handle_errno(arrindex);
-                exit(EXIT_FAILURE);
-            }
-        } else {
-            if (argc > 0) {
-                if (pipe(pipe_fd) == -1) {
-                    perror("pipe");
-                    exit(EXIT_FAILURE);
-                }
-
-                if (argc > 0) {
-                    dup2(pipe_fd[0], STDIN_FILENO);
-                }
-                if (argv[argc + 1] != NULL) {
-                    dup2(pipe_fd[1], STDOUT_FILENO);
-                }
-
-                close(pipe_fd[0]);
-                close(pipe_fd[1]);
-            }
-
-            if (execve(argv[0], argv, modified_env) == -1) {
-                strcpy(arrindex, argv[0]);
-                free(command);
-                free_environment(modified_env);
-                free_environment(argv);
-                handle_errno(arrindex);
-                exit(EXIT_FAILURE);
-            }
+        if (execve(args[0], args, modified_env) == -1) {
+            stringcpy(arrindex, args[0]);
+            free(command);
+            free_environment(modified_env);
+            free_environment(args);
+            handle_errno(arrindex);
         }
-    } else {
-        if (!isInteractiveMode()) {
-            if (argc > 0) {
-                close(pipe_fd[0]);
-            }
-            if (argv[argc + 1] != NULL) {
-                close(pipe_fd[1]);
-            }
-        }
+    } else if (child_pid > 0) {
         waitpid(child_pid, &status, 0);
     }
 
-    if (isInteractiveMode()) {
-        free_environment(args);
-    } else {
-        free_environment(argv);
-    }
+    free_environment(args);
     free_environment(modified_env);
 
-    return (0);
+    return 0;
 }
 
 
