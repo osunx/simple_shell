@@ -78,63 +78,34 @@ int execute_command(char *command) {
     pid_t child_pid;
     int status;
     /*char *full_path;*/
-    char arrindex[2048];
-   /* char **modified_env;*/
-    char *errormessage = "./hsh: No such file or directory\n";
+    char **modified_env;
+
     char *delim = " ";
     char **args = tokenize(command, delim);
-    if (strcmp(command, "/bin/ls -l") == 0) {
-	write(1, errormessage, stringlen(errormessage));
-	return (-1);
-    }
 
     if (args[0] == NULL) {
         free_environment(args);
-        return -1;
+        return (-1);
     }
 
-/**
- * if (containschars(args[0], "/") != 0) {
- *     full_path = get_command_path(args[0]);
- *      if (full_path == NULL) {
- *          free_environment(args);
- *           return (-1);
- *       } else {
- *           free(args[0]);
- *           args[0] = full_path;
- *       }
- *   }
-**/
-/**    modified_env = create_environment();
-    if (modified_env == NULL) {
-        free_environment(args);
-        free_environment(args);
-        write(STDERR_FILENO, "Error: Failed to create modified environment.\n", 45);
-        return(-1);
-    }
-**/
+    modified_env = create_environment();
 
     child_pid = fork();
-    if (child_pid == -1) {
-        perror("Fork failed");
-    } else if (child_pid == 0) {
-        execve(args[0], args, environ);
-            stringcpy(arrindex, args[0]);
-            free(command);
-           /* free_environment(modified_env);*/
+    if (child_pid == 0) {
+        if (execve(args[0], args, modified_env) == -1) {
+            write(STDERR_FILENO, "./hsh: No such file or directory\n", 33);
+            free_environment(modified_env);
             free_environment(args);
-	    write(1, errormessage, stringlen(errormessage));
-	    exit(127);
-            handle_errno(arrindex);
-        
+            exit(EXIT_FAILURE);
+        }
     } else if (child_pid > 0) {
         waitpid(child_pid, &status, 0);
     }
 
     free_environment(args);
-   /* free_environment(modified_env);*/
+    free_environment(modified_env);
 
-    return 0;
+    return (0);
 }
 
 
