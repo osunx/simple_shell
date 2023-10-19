@@ -76,168 +76,130 @@ char *get_command_path(char *command) {
  ***/
 
 int execute_command(char *command) {
-    /*** Both modes ***/
     pid_t child_pid;
     int status;
     char *full_path;
     char **modified_env;
-    char arrindex[2048];
-
-    /*** Tokenization ***/
-    char *delim = " ";
+    char arrindex[1024];
     char **args = NULL;
-
-    /*** Pipeline mode ***/
-    char *pipe_delim = " \t\n";
     char **argv = NULL;
     int argc = 0;
     int pipe_fd[2];
 
-    /*** Tokenize the current command based on mode ***/
-    if  (isInteractiveMode()) {
+    char *delim = " ";
+    char *pipe_delim = " \t\n";
+
+    if (isInteractiveMode()) {
         args = tokenize(command, delim);
-	if (args[0] == NULL) {
-	   /*** Return -1 if tokenization fails ***/
-	   free_environment(args);
-	   return (-1);
-	}
-    }
-    else {
-        argv = tokenize(command, pipe_delim);
-	if (argv[0] == NULL) {
-	   free_environment(argv);
-	   /*** Return -1 if tokenization fails ***/
-	   return (-1);
-	}
-    }
-
-    /*** Get the full path of the command if not provided with a path ***/
-    if (strexit(isInteractiveMode() ? args[0] : argv[0], "/") == 0) {
-
-        /***Get path based on mode***/
-        if (isInteractiveMode()) {
-            full_path = get_command_path(args[0]);
-        } else {
-            full_path = get_command_path(argv[0]);
+        if (args == NULL || args[0] == NULL) {
+            free_environment(args);
+            return (-1);
         }
+    } else {
+        argv = tokenize(command, pipe_delim);
+        if (argv == NULL || argv[0] == NULL) {
+            free_environment(argv);
+            return (-1);
+        }
+    }
 
+    if (isInteractiveMode()) {
+        full_path = get_command_path(args[0]);
         if (full_path == NULL) {
-            free(args);
+            free_environment(args);
             return (-1);
         } else {
-            if (isInteractiveMode()) {
-                free(args[0]);
-                args[0] = full_path;
-            } else {
-                free(argv[0]);
-                argv[0] = full_path;
-            }
+            free(args[0]);
+            args[0] = full_path;
+        }
+    } else {
+        full_path = get_command_path(argv[0]);
+        if (full_path == NULL) {
+            free_environment(argv);
+            return (-1);
+        } else {
+            free(argv[0]);
+            argv[0] = full_path;
         }
     }
 
-    /*** Create and pass the modified environment ***/
     modified_env = create_environment();
     if (modified_env == NULL) {
         if (isInteractiveMode()) {
             free_environment(args);
         } else {
-            if (argv != NULL) {
-                free_environment(argv);
-            }
+            free_environment(argv);
         }
+        write(STDERR_FILENO, "Error: Failed to create modified environment. Exiting with error code 127.\n", 74);
         exit(127);
     }
 
     if (!isInteractiveMode() && argv != NULL) {
-        /*** Count the number of commands in the pipeline ***/
         while (argv[argc] != NULL) {
             argc++;
         }
     }
 
-
     child_pid = fork();
-    if (child_pid == 0) {
-        /*** Child process ***/
+    if (child_pid == -1) {
+        perror("Fork failed");
+    } else if (child_pid == 0) {
         if (isInteractiveMode()) {
-            /*** Interactive mode: Execute the command directly ***/
-
             if (execve(args[0], args, modified_env) == -1) {
-		/*** Copy args[0] and free args array ***/
-		stringcpy(arrindex, args[0]);
-		free(command);
-		free_environment(modified_env);
-		free_environment(args);
-                /*** Handle execve failure ***/
-               handle_errno(arrindex);
+                strcpy(arrindex, args[0]);
+                free(command);
+                free_environment(modified_env);
+                free_environment(args);
+                handle_errno(arrindex);
+                exit(EXIT_FAILURE);
             }
         } else {
-            /*** Pipeline mode: Set up pipes and execute the command ***/
             if (argc > 0) {
-                /*** Create a pipe ***/
                 if (pipe(pipe_fd) == -1) {
                     perror("pipe");
                     exit(EXIT_FAILURE);
                 }
 
-                /*** Set up pipes and execute the command ***/
                 if (argc > 0) {
-                    /*** Connect the input of this command to the output of the previous command ***/
                     dup2(pipe_fd[0], STDIN_FILENO);
                 }
                 if (argv[argc + 1] != NULL) {
-                    /*** Connect the output of this command to the input of the next command ***/
                     dup2(pipe_fd[1], STDOUT_FILENO);
                 }
 
-                /*** Close the unused pipe ends ***/
                 close(pipe_fd[0]);
                 close(pipe_fd[1]);
             }
 
             if (execve(argv[0], argv, modified_env) == -1) {
-		/*** Copy argv[0] and free argv array ***/
-		stringcpy(arrindex, argv[0]);
-		free(command);
-		free_environment(modified_env);
-		free_environment(argv);
-                /*** Handle execve failure ***/
+                strcpy(arrindex, argv[0]);
+                free(command);
+                free_environment(modified_env);
+                free_environment(argv);
                 handle_errno(arrindex);
+                exit(EXIT_FAILURE);
             }
         }
-    } else if (child_pid > 0) {
-        /*** Parent process ***/
+    } else {
         if (!isInteractiveMode()) {
             if (argc > 0) {
-                /*** Close the input end of the pipe in pipeline mode ***/
                 close(pipe_fd[0]);
             }
             if (argv[argc + 1] != NULL) {
-                /*** Close the output end of the pipe in pipeline mode ***/
                 close(pipe_fd[1]);
             }
         }
         waitpid(child_pid, &status, 0);
-
-        /*** Placeholder if more waitpid functionality is needed ***/
     }
 
-    /*** Free the memory for arguments and environment ***/
     if (isInteractiveMode()) {
-	if (args != NULL) {
-	    free_environment(args);
-	 }
-
+        free_environment(args);
     } else {
-        if (argv != NULL) {
-            free_environment(argv);
-        }
-
+        free_environment(argv);
     }
     free_environment(modified_env);
-    /*printf("argv[0] is: %s\nargv is: %s\n", argv[0], holdstring);*/
 
-    return (0); /*** Successful execution on waitpid success ***/
+    return (0);
 }
 
 
