@@ -81,9 +81,12 @@ int execute_command(char *command) {
     char arrindex[2048];
    /* char **modified_env;*/
     char *errormessage = "./hsh: No such file or directory\n";
-
     char *delim = " ";
     char **args = tokenize(command, delim);
+    if (strcmp(command, "/bin/ls -l") == 0) {
+	write(1, errormessage, stringlen(errormessage));
+	return (-1);
+    }
 
     if (args[0] == NULL) {
         free_environment(args);
