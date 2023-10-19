@@ -77,7 +77,7 @@ char *get_command_path(char *command) {
 int execute_command(char *command) {
     pid_t child_pid;
     int status;
-    char *full_path;
+    /*char *full_path;*/
     char arrindex[2048];
     char **modified_env;
 
@@ -89,17 +89,18 @@ int execute_command(char *command) {
         return -1;
     }
 
-    if (strexit(args[0], "/") == 0) {
-        full_path = get_command_path(args[0]);
-        if (full_path == NULL) {
-            free_environment(args);
-            return (-1);
-        } else {
-            free(args[0]);
-            args[0] = full_path;
-        }
-    }
-
+/**
+ * if (containschars(args[0], "/") != 0) {
+ *     full_path = get_command_path(args[0]);
+ *      if (full_path == NULL) {
+ *          free_environment(args);
+ *           return (-1);
+ *       } else {
+ *           free(args[0]);
+ *           args[0] = full_path;
+ *       }
+ *   }
+**/
     modified_env = create_environment();
     if (modified_env == NULL) {
         free_environment(args);
