@@ -72,9 +72,9 @@ int main(int argc, char *argv[]) {
 	}**/
 
         /* Check and execute built-in commands */
-        if (stringtwocmp(command, "exit", 4) == 0) {
+       /** if (stringtwocmp(command, "exit", 4) == 0) {
             execute_exit(command);
-        } else if (stringtwocmp(command, "env", 3) == 0) {
+        } else*/ if (stringtwocmp(command, "env", 3) == 0) {
             execute_env();
         } else if (stringtwocmp(command, "cd", 2) == 0) {
             execute_cd(command);
@@ -90,9 +90,9 @@ int main(int argc, char *argv[]) {
            free(command);
 	}
 	
-       /* if (!isInteractiveMode()) {
-            return (EXIT_SUCCESS); Terminate the loop because it is in pipeline mode 
-        }*/
+       if (!isInteractiveMode()) {
+            return (EXIT_SUCCESS); /*Terminate the loop because it is in pipeline mode*/ 
+        }
     }
 
     return (EXIT_SUCCESS);
