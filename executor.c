@@ -60,7 +60,7 @@ char *get_command_path(char *command) {
     /* Write the error message to STDERR_FILENO */
     write(STDERR_FILENO, error_message, stringlen(error_message));
 
-    if (!isInteractiveMode()) {
+    if (!isInteractiveMode() || isInteractiveMode()) {
         exit(127);
        }
 
