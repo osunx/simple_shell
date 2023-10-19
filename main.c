@@ -31,7 +31,6 @@ void sigint_handler(int signum) {
  *        argv[0] is the name of the program.
  * Return: Always 0.
  */
-
 int main(int argc, char *argv[])
 {
   char *command;
@@ -87,5 +86,5 @@ int main(int argc, char *argv[])
         }
    }
 
-return (EXIT_SUCCESS);
+ return (EXIT_SUCCESS);
 }
