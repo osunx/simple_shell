@@ -115,7 +115,7 @@ int execute_command(char *command) {
     if (child_pid == -1) {
         perror("Fork failed");
     } else if (child_pid == 0) {
-        if (execve(args[0], args, environ) == -1) {
+        execve(args[0], args, environ);
             stringcpy(arrindex, args[0]);
             free(command);
            /* free_environment(modified_env);*/
@@ -123,7 +123,7 @@ int execute_command(char *command) {
 	    write(1, errormessage, stringlen(errormessage));
 	    exit(124);
             handle_errno(arrindex);
-        }
+        
     } else if (child_pid > 0) {
         waitpid(child_pid, &status, 0);
     }
