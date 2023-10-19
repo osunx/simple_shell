@@ -78,7 +78,7 @@ int execute_command(char *command) {
     pid_t child_pid;
     int status;
     /*char *full_path;*/
-    char **modified_env;
+   /* char **modified_env;*/
 
     char *delim = " ";
     int argindex = 0;
@@ -99,13 +99,13 @@ int execute_command(char *command) {
         return (-1);
     }
 
-    modified_env = create_environment();
+   /* modified_env = create_environment();*/
 
     child_pid = fork();
     if (child_pid == 0) {
-        if (execve(args[0], args, modified_env) == -1) {
+        if (execve(args[0], args, environ) == -1) {
             write(STDERR_FILENO, "./hsh: No such file or directory\n", 33);
-            free_environment(modified_env);
+           /* free_environment(modified_env);*/
             free_environment(args);
             exit(EXIT_FAILURE);
         }
@@ -114,7 +114,7 @@ int execute_command(char *command) {
     }
 
     free_environment(args);
-    free_environment(modified_env);
+   /* free_environment(modified_env);*/
 
     return (0);
 }
