@@ -76,22 +76,18 @@ char *get_command_path(char *command) {
 **/
 /* Execute the given command */
 int execute_command(char *command) {
-    pid_t child_pid; /* Process ID of the child process */
-    int status; /* Status of the process */
-    char *delim = " "; /* Delimiter for command parsing */
-    char arrindex[1024];
-    char **modified_env; /* To store the modified environment */
-    char **args = stringsplit(command, delim); /* Split the command into arguments */
-    char *full_path; /* Full path of the command */
+    pid_t child_pid;
+    int status;
+    char *full_path;
+    char arrindex[2048];
+
+    char *delim = " ";
+    char **modified_env;
+    char **args = tokenize(command, delim);
 
     if (args[0] == NULL) {
-        return (-1); /* Print an error message if execve fails */
-    }
-
-    /* Create a new environment array */
-    modified_env = create_environment();
-    if (modified_env == NULL) {
-        return (-1); /* Return an error value indicating failure */
+        free_environment(args);
+        return (-1);
     }
 
     if (strexit(args[0], "/") == 0) {
@@ -104,11 +100,17 @@ int execute_command(char *command) {
             args[0] = full_path;
         }
 
-    /* Modify or set environment variables if needed */
-    /* set_environment("SOME_VARIABLE", "some_value", modified_env); */
+    modified_env = create_environment();
+    if (modified_env == NULL) {
+        free_environment(args);
+        free_environment(args);
+        write(STDERR_FILENO, "Error: Failed to create modified environment.\n", 45);
+    }
 
     child_pid = fork();
-    if (child_pid == 0 && args[0] != NULL) {
+    if (child_pid == -1) {
+        perror("Fork failed");
+    } else if (child_pid == 0) {
         if (execve(args[0], args, modified_env) == -1) {
             stringcpy(arrindex, args[0]);
             free(command);
@@ -116,14 +118,14 @@ int execute_command(char *command) {
             free_environment(args);
             handle_errno(arrindex);
         }
- } else if (child_pid > 0) {
+    } else if (child_pid > 0) {
         waitpid(child_pid, &status, 0);
     }
-    
+
     free_environment(args);
     free_environment(modified_env);
 
-    return (0); /* successful execution on waitpid success */
+    return (0);
 }
 
 
