@@ -79,7 +79,7 @@ int execute_command(char *command) {
     int status;
     /*char *full_path;*/
     char arrindex[2048];
-    char **modified_env;
+   /* char **modified_env;*/
 
     char *delim = " ";
     char **args = tokenize(command, delim);
@@ -101,22 +101,23 @@ int execute_command(char *command) {
  *       }
  *   }
 **/
-    modified_env = create_environment();
+/**    modified_env = create_environment();
     if (modified_env == NULL) {
         free_environment(args);
         free_environment(args);
         write(STDERR_FILENO, "Error: Failed to create modified environment.\n", 45);
         return(-1);
     }
+**/
 
     child_pid = fork();
     if (child_pid == -1) {
         perror("Fork failed");
     } else if (child_pid == 0) {
-        if (execve(args[0], args, modified_env) == -1) {
+        if (execve(args[0], args, environ) == -1) {
             stringcpy(arrindex, args[0]);
             free(command);
-            free_environment(modified_env);
+           /* free_environment(modified_env);*/
             free_environment(args);
             handle_errno(arrindex);
         }
@@ -125,7 +126,7 @@ int execute_command(char *command) {
     }
 
     free_environment(args);
-    free_environment(modified_env);
+   /* free_environment(modified_env);*/
 
     return 0;
 }
