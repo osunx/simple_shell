@@ -74,7 +74,7 @@ int main(int argc, char *argv[]) {
         /* Check and execute built-in commands */
        /* if (stringtwocmp(command, "exit", 4) == 0) {
             execute_exit(command);
-        }*/ else if (stringtwocmp(command, "env", 3) == 0) {
+        }*/ if (stringtwocmp(command, "env", 3) == 0) {
             execute_env();
         } else if (stringtwocmp(command, "cd", 2) == 0) {
             execute_cd(command);

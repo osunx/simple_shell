@@ -520,7 +520,7 @@ size_t i;
               write(STDERR_FILENO, "./hsh:", 6);
               write(STDERR_FILENO, " No such file or directory\n", 27);
               }
-            exit(127);
+           return;
 
         case ENOEXEC:
             write(STDERR_FILENO, program_name, strlen(program_name));
