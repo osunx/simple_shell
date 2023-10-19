@@ -36,7 +36,7 @@ char *getUserName(void) {
  */
 void displayHostName(void) {
     /* Define the prompt string */
-    char prompt[] = ":$ ";
+    char prompt[] = "$ ";
     char hostname[1024]; /* Buffer to store the hostname */
     char *pwd = get_environment("PWD"); /* Get the working directory */
     int total_length;

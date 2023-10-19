@@ -77,8 +77,10 @@ char *get_command_path(char *command) {
 int execute_command(char *command) {
     pid_t child_pid;
     int status;
+    size_t i;
     /*char *full_path;*/
-   /* char **modified_env;*/
+     char **modified_env;
+     char *equal_sign;
 
     char *delim = " ";
     int argindex = 0;
@@ -106,7 +108,14 @@ int execute_command(char *command) {
         return (-1);
     }
 
-   /* modified_env = create_environment();*/
+   modified_env = create_environment();
+    for (i = 0; modified_env[i] != NULL; i++) {
+        equal_sign = strchr(modified_env[i], '=');
+        if (equal_sign) {
+            *equal_sign = '\0';
+            setenv(modified_env[i], equal_sign + 1, 1);
+        }
+    }
 
     child_pid = fork();
     if (child_pid == 0) {
