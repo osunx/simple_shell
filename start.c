@@ -36,7 +36,6 @@ char *getUserName(void) {
  */
 void displayHostName(void) {
     /* Define the prompt string */
-    char prompt[] = "$ ";
     char hostname[1024]; /* Buffer to store the hostname */
     char *pwd = get_environment("PWD"); /* Get the working directory */
     int total_length;
@@ -78,9 +77,6 @@ void displayHostName(void) {
         /* Free the allocated memory */
         free(output);
         free(pwd);
-    } else {
-        /* Write dollar sign and space if not in interactive mode */
-        write(STDOUT_FILENO, prompt, stringlen(prompt));
     }
 }
 
@@ -96,21 +92,23 @@ char *read_command()
 char *input = NULL;
 size_t len = 0;
 ssize_t read;
+/* write(STDOUT_FILENO, "Enter a command: ", 17); */
+         read = getline(&input, &len, stdin);
+        if (read == -1)
+        {
+                free(input);
+		if (isInteractiveMode()) {
+                   handle_errno("EOF");
+		}
+	return(NULL);
+        }
 
-  read = getline(&input, &len, stdin);
-  if (read == -1) {
-     if (input != NULL) {
-	free(input);
-     }
-    handle_errno("EOF");
-  }
+                /*Removal of trailing newline character*/
+        if (read > 0 && input[read - 1] == '\n')
+        {
+                input[read - 1] = '\0';
 
-  /*Removal of trailing newline character*/
-  if (read > 0 && input[read - 1] == '\n')
-  {
-   input[read - 1] = '\0';
-
-  }
+        }
 return (input);
 }
 

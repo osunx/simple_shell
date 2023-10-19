@@ -11,7 +11,7 @@
  */
 char *get_command_path(char *command) {
     /* Get the PATH environment variable */
-    char *path = getenv("PATH");
+    char *path = get_environment("PATH");
     /* Duplicate the PATH variable for tokenization */
     char *path_env = stringdup(path);
     /* Tokenize the PATH variable to search for the command */
@@ -27,7 +27,7 @@ char *get_command_path(char *command) {
         if (full_path == NULL) {
             perror("malloc");
             free(path_env);
-           /* free(path);*/
+            free(path);
             exit(1);  /* Handle memory allocation failure by exiting */
         }
 
@@ -39,7 +39,7 @@ char *get_command_path(char *command) {
         /* Check if the constructed path is executable */
         if (access(full_path, X_OK) == 0) {
             free(path_env);
-           /* free(path);*/
+            free(path);
             return (full_path);  /* Return the valid path */
         }
 
@@ -52,15 +52,15 @@ char *get_command_path(char *command) {
 
     /* Free allocated memory for path_env and path */
     free(path_env);
-   /* free(path);*/
+    free(path);
 
     /* If no valid path is found, return NULL and print an error message */
     snprintf(error_message, ERROR_MESSAGE_SIZE, "./hsh: 1: %s: not found\n", command);
-
+    free(command);
     /* Write the error message to STDERR_FILENO */
     write(STDERR_FILENO, error_message, stringlen(error_message));
 
-    if (!isInteractiveMode()) {
+    if (!isInteractiveMode() || isInteractiveMode()) {
         exit(127);
        }
 
@@ -73,17 +73,20 @@ char *get_command_path(char *command) {
  * @command: The command to execute.
  *
  * Return: 0 on success, -1 on failure.
- ***/
+**/
 int execute_command(char *command) {
     pid_t child_pid;
     int status;
     char *full_path;
     char arrindex[2048];
-    char **modified_env = NULL;
-    char *delim = " ";
-    char **args = tokenize(command, delim);
 
-    if (args[0] == NULL) {
+    char *delim = " \n";
+    char **modified_env;
+    char **args;
+    
+    args = tokenize(command, delim);
+
+    if (args == NULL) {
         free_environment(args);
         return (-1);
     }
@@ -105,12 +108,11 @@ int execute_command(char *command) {
         free_environment(args);
         write(STDERR_FILENO, "Error: Failed to create modified environment.\n", 45);
     }
-    
-    child_pid = fork();
 
+    child_pid = fork();
     if (child_pid == -1) {
         perror("Fork failed");
-    } else if (child_pid == 0) {
+    } else if (child_pid == 0 && args[0] != NULL) {
         if (execve(args[0], args, modified_env) == -1) {
             stringcpy(arrindex, args[0]);
             free(command);
