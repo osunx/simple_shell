@@ -154,7 +154,7 @@ char **tokenize(char *str, char *delimiter)
  * Return: containsNonAllowed if the conditions are met, 0 otherwise
  */
 
-size_t strcomdition(char *String, char *stableString, char *allowedString, size_t occurence)
+size_t strcondition(char *String, char *stableString, char *allowedString, size_t occurence)
 {
     size_t i;
     size_t containsNonAllowed = 0;
@@ -206,7 +206,7 @@ size_t strcomdition(char *String, char *stableString, char *allowedString, size_
             i++;
         }
 
-        if (whiteSpace != 0 && !strchr(allowedString, ' ')) {
+        if (whiteSpace != 0 && !strexit(allowedString, " ") && !strexit(stableString, " ")) {
             return (whiteSpace);
         }
 

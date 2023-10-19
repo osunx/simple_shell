@@ -69,8 +69,8 @@ char **set_environment(char *name, char *value, int overwrite, int mode) {
     int has_existing_environment = 0; /** Flag for existing environment **/
 
     /** Calculate the lengths of the name and value **/
-    name_length = strlen(name);
-    value_length = strlen(value);
+    name_length = stringlen(name);
+    value_length = stringlen(value);
     new_var_length = name_length + value_length + 2;
 
     /** Find the environment variable **/
@@ -219,7 +219,7 @@ char *print_environment(char *mode) {
 
     /* Calculate the total length of the environment variables */
     while (environ[i] != NULL) {
-        total_length += strlen(environ[i]) + 1; /* Add 1 for newline character */
+        total_length += stringlen(environ[i]) + 1; /* Add 1 for newline character */
         i++;
     }
 

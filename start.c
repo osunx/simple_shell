@@ -113,3 +113,32 @@ ssize_t read;
   }
 return (input);
 }
+
+
+/**
+ * strsearch - Find the first occurrence of a keyword in a string
+ * @str: The string to search
+ * @keyword: The keyword to search for
+ *
+ * Return: Pointer to the first occurrence of the keyword, or NULL if not found
+ */
+char *strsearch(char *str, const char *keyword) {
+    size_t keywordLen = strlen(keyword);
+    char nextChar;
+
+    if(str == NULL || keyword == NULL) {
+        return (NULL);
+    }
+
+    while (*str != '\0') {
+        if ((str != NULL || !isalnum((unsigned char)str[-1])) && strncmp(str, keyword, keywordLen) == 0) {
+            nextChar = str[keywordLen];
+            if (!isalnum((unsigned char)nextChar) && nextChar != '.') {
+                return (str);
+            }
+        }
+        str++;
+    }
+
+    return (NULL);
+}

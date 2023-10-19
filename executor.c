@@ -275,7 +275,7 @@ void execute_cd(char *input) {
     while (command != NULL) {
         /* Check if the command is "cd" (with or without arguments) */
         if (startwith(command, "cd")) {
-            if (strcomdition(command, "cd", " ", 1) == 0) {
+            if (strcondition(command, "cd", " ", 1) == 0) {
                 path = get_environment("HOME");
 		ispathused++;
             } else {
@@ -364,54 +364,54 @@ void execute_cd(char *input) {
  * @command: The command to execute.
  * Return: The exit status of the command.
  */
-int get_system(const char *command)
+int get_system(char *command)
 {
-pid_t pid;
-int status;
-int exit_status = -1; /* Initialize with an error value */
+    pid_t pid;
+    int status;
+    int exit_status = 0; /** Initialize with an error value **/
 
-/* Create the environment for the child process */
-char **envp = create_environment();
+    /** Create the environment for the child process **/
+    char **envp = create_environment();
 
-/* Fork a new process */
-pid = fork();
-if (pid < 0)
-{
-perror("fork");
-free_environment(envp);
-return (exit_status);
-}
-else if (pid == 0)
-{
-/* Child process: Parse and execute the command */
-char *args[4];
-args[0] = "/bin/sh";
-args[1] = "-c";
-args[2] = (char *)command; /* Command to execute */
-args[3] = NULL; /* Null-terminate the args array */
+    /** Fork a new process **/
+    pid = fork();
+    if (pid < 0)
+    {
+        perror("fork");
+        free_environment(envp);
+        return (exit_status);
+    }
+    else if (pid == 0)
+    {
+        /** Child process: Parse and execute the command **/
+        char *args[4];
+        args[0] = "/bin/sh";
+        args[1] = "-c";
+        args[2] = (char *)command; /** Command to execute **/
+        args[3] = NULL; /** Null-terminate the args array **/
 
-/* Execute the command using execve */
-execve("/bin/sh", args, envp);
+        /** Execute the command using execve **/
+       if (execve("/bin/sh", args, envp) == -1) {
+          /** execve only returns if an error occurred **/
+          free_environment(envp);
+          handle_errno(command);
 
-/* execve only returns if an error occurred */
-perror("execve");
-free_environment(envp);
-exit(EXIT_FAILURE);
-}
-else
-{
-/* Parent process: Wait for the child to complete */
-waitpid(pid, &status, 0);
-free_environment(envp);
+       }
+    }
+    else
+    {
+        /** Parent process: Wait for the child to complete **/
+        free_environment(envp);
+        waitpid(pid, &status, 0);
 
-if (WIFEXITED(status))
-{
-/* Child exited normally, return its exit status */
-exit_status = WEXITSTATUS(status);
-}
-}
+        if (WIFEXITED(status))
+        {
+            /** Child exited normally, return its exit status **/
+            exit_status = WEXITSTATUS(status);
+        }
+    }
 
-return (exit_status);
+    return (exit_status);
 }
 
 

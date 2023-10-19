@@ -1,5 +1,66 @@
 #include "main.h"
 
+
+/* 
+ *Define prefixs values.
+*/
+char *prefixes[] = {
+    "nohup",      /* Run in the background, ignoring hangup signal */
+    "cd",         /* Change the shell working directory */
+    "umask",      /* Set the default file permissions */
+    "trap",       /* Execute a command when the shell receives a signal */
+    "eval",       /* Evaluate several commands/arguments */
+    "exec",       /* Replace the shell with another command */
+    "source",     /* Execute commands from a file */
+    "return",     /* Exit a function */
+    "shift",      /* Shift positional parameters */
+    "exit",       /* Terminate the shell */
+    "export",     /* Set an environment variable */
+    "unset",      /* Unset an environment variable */
+    "test",       /* Check file types and compare values */
+    "alias",      /* Create an alias for a command */
+    "bg",         /* Resume suspended jobs in the background */
+    "fg",         /* Resume suspended jobs in the foreground */
+    "jobs",       /* List active jobs */
+    "wait",       /* Wait for a process to complete */
+    "kill",       /* Send a signal to a process */
+    "echo",       /* Display a message */
+    "printf",     /* Format and print data */
+    "read",       /* Read a line from standard input */
+    "readonly",   /* Mark variables/functions as readonly */
+    "ulimit",     /* Set or get user limits */
+    "type",       /* Display information about command type */
+    "times",      /* Display shell process times */
+    "history",    /* Command History */
+    "shopt",      /* Shell Options */
+    "set",        /* Shell Settings */
+    "dirs",       /* Display the list of currently remembered directories */
+    "pushd",      /* Add directories to the directory stack */
+    "popd",       /* Remove directories from the directory stack */
+    "umask",      /* Set the default file permissions */
+    "bg",         /* Put a job in the background */
+    "fg",         /* Bring a job to the foreground */
+    "case",       /* Conditionally perform a command */
+    "coproc",     /* Co-process */
+    "declare",    /* Declare variables and give them attributes */
+    "elif",       /* Else if condition */
+    "esac",       /* End case condition */
+    "for",        /* For loop */
+    "function",   /* Define a function */
+    "if",         /* If condition */
+    "select",     /* Generate a list of items */
+    "then",       /* Then condition */
+    "time",       /* Time a pipeline */
+    "until",      /* Until loop */
+    "while",      /* While loop */
+    "do",         /* Do loop */
+    "done",       /* End loop */
+    ":",          /* No-op, or null command */
+    "continue",   /* Skip the remaining commands in a loop and start the next iteration */
+    NULL          /*  NULL pointer to indicate the end of the array  */
+};
+
+
 /**
  * startsWithPrefix - Check if a command starts with a prefix.
  * @prefixes: The execution of program format to check.
@@ -7,24 +68,22 @@
  * Return: 0 if the command starts with a prefix, -1 otherwise.
  */
 
-const char* startsWithPrefix(char *input, const char* prefixes[])
+char *startsWithPrefix(char *input)
 {
-size_t i = 0;
-size_t prefix_length;
+  size_t i = 0;
+  size_t prefix_length;
 
-while (prefixes[i] != NULL)
-{
-prefix_length = strlen(prefixes[i]);
+  while (prefixes[i] != NULL) {	  
+	prefix_length = stringlen(prefixes[i]);
 
-if (strncmp(input, prefixes[i], prefix_length) == 0)
-{
-return (prefixes[i]);
-}
+	if (strncmp(input, prefixes[i], prefix_length) == 0) {
+	   return (prefixes[i]);
+        }
 
-i++;
-}
+   i++;
+  }
 
-return (NULL); /* No matching prefix found */
+ return (NULL); /* No matching prefix found */
 }
 
 
@@ -92,144 +151,6 @@ char *concatTokens(char **tokens, char *separator)
 }
 
 
-/* 
- *Define prefixs values.
-*/
-
-const char* prefixes[] = {
-    "./",         /* Execute from the current directory */
-    "python",     /* Execute Python scripts */
-    "perl",       /* Execute Perl scripts */
-    "bash",       /* Execute Bash scripts */
-    "sh",         /* Execute Shell scripts */
-    "sudo",       /* Execute with superuser privileges */
-    "nohup",      /* Run in the background, ignoring hangup signal */
-    "java",       /* Execute Java programs */
-    "node",       /* Execute Node.js scripts */
-    "Rscript",    /* Execute R scripts */
-    "php",        /* Execute PHP scripts */
-    "ruby",       /* Execute Ruby scripts */
-    "gcc",        /* Compile C programs */
-    "g++",        /* Compile C++ programs */
-    "make",       /* Execute Makefiles */
-    "docker",     /* Execute Docker commands */
-    "kubectl",    /* Execute Kubernetes commands */
-    "ansible",    /* Execute Ansible playbooks */
-    "terraform",  /* Execute Terraform scripts */
-    "git",        /* Execute Git commands */
-    "curl",       /* Download content from the web */
-    "wget",       /* Download files from the web */
-    "tar",        /* Archive utility */
-    "zip",        /* Create ZIP archives */
-    "unzip",      /* Extract ZIP archives */
-    "scp",        /* Secure copy files over SSH */
-    "ssh",        /* Secure Shell for remote login */
-    "vim",        /* Text editor */
-    "nano",       /* Text editor */
-    "emacs",      /* Text editor */
-    "tmux",       /* Terminal multiplexer */
-    "screen",     /* Terminal multiplexer */
-    "jupyter",    /* Jupyter Notebook */
-    "rustc",      /* Compile Rust programs */
-    "go",         /* Execute Go programs */
-    "npm",        /* Node Package Manager */
-    "yarn",       /* Yarn Package Manager */
-    "virtualenv", /* Python virtual environments */
-    "pip",        /* Python package manager */
-    "gem",        /* Ruby package manager */
-    "gradle",     /* Build automation tool */
-    "cmake",      /* Cross-platform build system */
-    "mvn",        /* Apache Maven build tool */
-    "ant",        /* Apache Ant build tool */
-    "nmap",       /* Network exploration tool */
-    "awk",        /* Text processing language */
-    "sed",        /* Stream editor */
-    "jq",         /* JSON processor */
-    "pandoc",     /* Document converter */
-    "exiftool",   /* Read and write meta information in files */
-    "ffmpeg",     /* Multimedia framework */
-    "imagemagick",/* Image manipulation tool */
-    "convert",    /* Part of ImageMagick for image conversion */
-    "qemu",       /* Virtualization tool */
-    "wireshark",  /* Network protocol analyzer */
-    "tcpdump",    /* Network packet analyzer */
-    "traceroute", /* Network route tracing tool */
-    "nload",      /* Network traffic monitoring tool */
-    "stress",     /* System stress testing tool */
-    "rsync",      /* File synchronization tool */
-    "grep",       /* Text search tool */
-    "find",       /* Search for files and directories */
-    "cut",        /* Remove sections from lines of files */
-    "sort",       /* Sort lines of text files */
-    "uniq",       /* Report or omit repeated lines */
-    "cat",        /* Concatenate and display files */
-    "head",       /* Output the first part of files */
-    "tail",       /* Output the last part of files */
-    "diff",       /* Compare files line by line */
-    "patch",      /* Apply a diff file to an original */
-    "bc",         /* Arbitrary precision calculator */
-    "cal",        /* Display a calendar */
-    "date",       /* Display or set the date and time */
-    "expr",       /* Evaluate expressions */
-    "whois",      /* Client for the whois directory service */
-    "ldd",        /* Print shared object dependencies */
-    "lsof",       /* List open files */
-    "strace",     /* Trace system calls and signals */
-    "valgrind",   /* Memory analysis tool */
-    "iotop",      /* Monitor I/O usage */
-    "htop",       /* Interactive process viewer */
-    "free",       /* Display amount of free and used memory */
-    "df",         /* Report file system disk space usage */
-    "du",         /* Estimate file and directory space usage */
-    "top",        /* Display and update sorted information */
-    "ps",         /* Report a snapshot of the current processes */
-    "kill",       /* Terminate a process */
-    "shutdown",   /* Shutdown or restart the system */
-    "reboot",     /* Reboot the system */
-    "halt",       /* Halt or power off the system */
-    "ifconfig",   /* Configure network interfaces */
-    "ip",         /* Show/manipulate routing, devices, policy routing, etc. */
-    "ping",       /* Send ICMP ECHO_REQUEST to network hosts */
-    "netstat",    /* Network statistics */
-    "route",      /* Show/manipulate IP routing table */
-    "iptables",   /* Administration tool for IPv4 packet filtering and NAT */
-    "adduser",    /* Add a user to the system */
-    "passwd",     /* Change user password */
-    "userdel",    /* Delete a user from the system */
-    "groupadd",   /* Add a group to the system */
-    "groups",     /* Print group memberships for a user */
-    "addgroup",   /* Add a user to a group */
-    "delgroup",   /* Delete a group from the system */
-    "ldconfig",   /* Configure dynamic linker run-time bindings */
-    "chmod",      /* Change file mode bits */
-    "chown",      /* Change file owner and group */
-    "chgrp",      /* Change group ownership */
-    "ln",         /* Create links */
-    "rm",         /* Remove files or directories */
-    "mv",         /* Move files or directories */
-    "cp",         /* Copy files or directories */
-    "touch",      /* Change file timestamps */
-    "mkdir",      /* Create directories */
-    "rmdir",      /* Remove empty directories */
-    "ls",         /* List directory contents */
-    "echo",       /* Display a message */
-    "date",       /* Display or set the date and time */
-    "hostname",   /* Show or set the system's hostname */
-    "uname",      /* Print system information */
-    "dmesg",      /* Print or control the kernel ring buffer */
-    "lsblk",      /* List block devices */
-    "blkid",      /* Display or query block device information */
-    "mount",      /* Mount a file system */
-    "umount",     /* Unmount file systems */
-    "df",         /* Report file system disk space usage */
-    "du",         /* Estimate file and directory space usage */
-    "free",       /* Display amount of free and used memory */
-    "ps",         /* Report a snapshot of the current processes */
-    "killall",    /* Kill processes by name */
-    "reboot",     /* Reboot the system */
-    "shutdown",   /* Shutdown or restart the system */
-    NULL          /*  NULL pointer to indicate the end of the array  */
-};
 
 
 /**
@@ -247,7 +168,7 @@ void handle_errno(char *program_name)
 {
 /* Get the error message associated with errno */
 const char *error_message = strerror(errno);
-
+size_t i;
     switch (errno)
     {
         case E2BIG:
@@ -830,6 +751,13 @@ const char *error_message = strerror(errno);
 
             if (stringcmp(program_name, "EOF") == 0) {
                 write(STDERR_FILENO, "\n\n[Disconnected...]\n\n", 21);
+		/* Free the definedalias memory */
+    		if (definedalias != NULL) {
+    		for (i = 0; definedalias[i] != NULL; i++) {
+        	    free(definedalias[i]);
+    		}
+    		free(definedalias);
+    		}
                 exit(1);
             } else {
                write(STDERR_FILENO, program_name, strlen(program_name));

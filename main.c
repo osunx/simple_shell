@@ -1,6 +1,9 @@
 #include "main.h"
 
 
+/* Define the array here */
+char **definedalias = NULL;
+
 /**
  * sigint_handler - Handle the SIGINT signal (Ctrl+C).
  * @signum: The signal number.
@@ -31,10 +34,10 @@ void sigint_handler(int signum) {
  */
 
 int main(int argc, char *argv[]) {
-    char *command;
+    char *command = NULL;
     char *delim = "&|";
     char *delimone = ";";
-
+    char *cmd = NULL;
     /* Ensure the program is called with correct arguments */
     if (argc != 1) {
         write(STDERR_FILENO, "Usage: ", 7);
@@ -57,7 +60,13 @@ int main(int argc, char *argv[]) {
         }
 
         /* Get user input */
-        command = read_command();
+        cmd = read_command();
+
+	command = cmdConstructor(cmd);
+	if (strsearch(command, "alias") != NULL) {
+	    free(command);
+	    continue;
+	}
 
         /* Check and execute built-in commands */
         if (stringtwocmp(command, "exit", 4) == 0) {
@@ -70,8 +79,6 @@ int main(int argc, char *argv[]) {
             execute_separator(command);
         } else if (containschars(command, delim) == 1) {
             execute_logical_operators(command);
-        } else if (stringtwocmp(command, "alias", 5) == 0) {
-            execute_alias(command);
         } else {
             /* Execute the command */
             execute_command(command);
