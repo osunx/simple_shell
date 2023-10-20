@@ -123,39 +123,57 @@ command = stringtok(NULL, ";\n");
 /**
 * execute_logical_operators - Execute commands with logical operators.
 *
-* @input: The input commands.
-*/
-void execute_logical_operators(char *input)
-{
-char *command = stringtok(input, "\n");
-int status = 0;
-int result;
+* @command: The input commands.
+* Function to execute commands based on logical operators && and ||
+* Return - status
+**/
+int execute_logical_operator(char *command) {
+    char *token;
+    char *delimiter = "&&||";
+    int result = 1;
+    char *trimmed_token;
+    char *end;
+    int execution_status;
 
-while (command != NULL)
-{
-/* Execute the command using get_system */
-result = get_system(command);
+    /* Tokenize the command based on delimiters && and || */
+    token = strtok(command, delimiter);
 
-/* Check for logical operators directly in the command string */
-if (containschars(command, "&&") != 1)
-{
-if (result != 0)
-{
-status = 1;
-break;
-}
-}
-else if (containschars(command, "||") != 1)
-{
-if (result == 0)
-{
-status = 0;
-break;
-}
-}
+    while (token != NULL) {
+        /* Remove leading and trailing white spaces */
+        trimmed_token = token;
+        while (*trimmed_token == ' ') {
+            ++trimmed_token;
+        }
 
-command = stringtok(NULL, "\n");
-}
+        end = trimmed_token + strlen(trimmed_token) - 1;
+        while (end > trimmed_token && *end == ' ') {
+            *end-- = '\0';
+        }
 
-exit(status);
+        /* Check if the token is && or || */
+        if (strcmp(trimmed_token, "&&") == 0) {
+            /* Continue to the next token */
+            token = strtok(NULL, delimiter);
+            continue;
+        } else if (strcmp(trimmed_token, "||") == 0) {
+            /* Set the result for the || operator */
+            result = 0;
+            /* Continue to the next token */
+            token = stringtok(NULL, delimiter);
+            continue;
+        }
+
+        /* Execute the command and check the status based on the result */
+        execution_status = get_system(trimmed_token);
+        if (!result && execution_status == 0) {
+            return (0);
+        } else if (result && execution_status != 0) {
+            return (1);
+        }
+
+        /* Move to the next token */
+        token = stringtok(NULL, delimiter);
+    }
+
+    return (result);
 }

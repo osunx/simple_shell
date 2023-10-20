@@ -34,7 +34,7 @@ void sigint_handler(int signum) {
 int main(int argc, char *argv[])
 {
   char *command;
-  char *delim = "&|";
+  char *delim = "&&||";
   char *delimone = ";";
   char *cmd = NULL;
 
@@ -76,7 +76,7 @@ int main(int argc, char *argv[])
         } else if (containschars(command, delimone) == 1) {
             execute_separator(command);
         } else if (containschars(command, delim) == 1) {
-            execute_logical_operators(command);
+            execute_logical_operator(command);
         } else {
             /* Execute the command */
             execute_command(command);
