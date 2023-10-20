@@ -164,12 +164,12 @@ int execute_logical_operator(char *command) {
         }
 
         /* Execute the command and check the status based on the result */
-        execution_status = get_system(trimmed_token);
-        if (!result && execution_status == 0) {
+        execution_status = system(trimmed_token);
+        if (execution_status == 0) {
             if (!isInteractiveMode()) {
 		exit(2);
 	    }
-        } else if (result && execution_status != 0) {
+        } else if (execution_status != 0) {
 	    if (!isInteractiveMode()) {
                exit(1);
 	    }
