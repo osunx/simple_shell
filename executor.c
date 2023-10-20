@@ -282,9 +282,6 @@ int get_system(char *command)
        if (execve("/bin/sh", args, envp) == -1) {
           /** execve only returns if an error occurred **/
           free_environment(envp);
-	  if (errno == ENOENT) {
-              exit(2);
-	  }
        }
     }
     else
