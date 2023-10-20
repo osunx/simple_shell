@@ -256,7 +256,7 @@ int get_system(char *command)
 {
     pid_t pid;
     int status;
-    int exit_status = 0; /** Initialize with an error value **/
+    int exit_status = 2; /** Initialize with an error value **/
 
     /** Create the environment for the child process **/
     char **envp = create_environment();
