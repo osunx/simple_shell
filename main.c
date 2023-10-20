@@ -70,7 +70,6 @@ int main(int argc, char *argv[])
         /* Check and execute built-in commands */
 	if (containschars(command, delimtwo) != 0) {
 	   execute_with_variable_replacement(command);
-	   continue;
 	} else if (stringtwocmp(command, "exit", 4) == 0) {
             execute_exit(command);
         } else if (stringtwocmp(command, "env", 3) == 0) {
