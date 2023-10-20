@@ -156,55 +156,44 @@ char **set_environment(char *name, char *value, int overwrite, int mode) {
 * remove_environment - Remove an environment variable.
 * @name: The name of the environment variable to remove.
 */
+int remove_environment(const char *name) {
+    int found = 0; /* 0 if variable not found, 1 if variable found and removed */
+    size_t namelength; /* Length of the variable name */
+    int i, new_index;
+    char *delimiter;
 
-void remove_environment(const char *name)
-{
-char **new_env = NULL;
-int new_env_size = 0;
-char *delimiter;
-char delim = '=';
-int namelength;
-int i;
-int j;
+    /* Iterate through the environment variables */
+    for (i = 0; environ[i] != NULL; i++) {
+        delimiter = strchr(environ[i], '=');
+        if (delimiter != NULL) {
+            namelength = delimiter - environ[i];
+            /* Compare the variable name with the one provided */
+            if (strncmp(environ[i], name, namelength) == 0) {
+                found = 1;
+                free(environ[i]); /* Free the memory for the environment variable */
+                environ[i] = NULL; /* Set the pointer to NULL to indicate removal */
+            }
+        }
+    }
 
-/* Iterate through the environment variables */
-for (i = 0; environ[i] != NULL; i++)
-{
-delimiter = strchr(environ[i], delim);
-if (delimiter != NULL)
-{
-/* Calculate the length of the variable  */
-namelength = delimiter - environ[i];
+    /* If the variable was found, compact the environment to remove NULL entries */
+    if (found) {
+        new_index = 0;
+        for (i = 0; environ[i] != NULL; i++) {
+            if (environ[i] != NULL) {
+                environ[new_index] = environ[i];
+                new_index++;
+            }
+        }
+        environ[new_index] = NULL; /* Null-terminate the environment array */
+    }
 
-/* Compare the variable name with the one provided*/
-if (strncmp(environ[i], name, namelength) != 0)
-{
-/* Copy the variable to the new environment array */
-new_env_size++;
-new_env = realloc(new_env, sizeof(char *) * (new_env_size + 1));
-if (new_env == NULL)
-{
-perror("realloc");
-exit(EXIT_FAILURE);
-}
-new_env[new_env_size - 1] = strdup(environ[i]);
-}
-}
+    return (found);
 }
 
-/* Null-terminate the new environment array */
-new_env[new_env_size] = NULL;
 
-/* Free the old environment array */
-for (j = 0; environ[j] != NULL; j++)
-{
-free(environ[j]);
-}
-free(environ);
 
-/* Set environ to the new environment array */
-environ = new_env;
-}
+
 /**
 * print_environment - Print the environment variables.
 * @mode : write the environment or return it.

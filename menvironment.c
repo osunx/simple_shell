@@ -91,3 +91,50 @@ int strinprintf(char *str, size_t size, const char *format, ...) {
 
     return (n);
 }
+
+
+/**
+ * process_env_command - Process setenv and unsetenv commands.
+ * @command: The command string to process.
+ *
+ * This function processes setenv and unsetenv commands along with their arguments.
+ * It calls the respective functions to set or unset the environment variables and
+ * handles any errors that may occur during the process.
+ */
+void process_env_command(char *command) {
+    char *name = NULL;
+    char *value = NULL;
+    int trackunset;
+
+    if (strstr(command, "setenv") == command) {
+        /* Process setenv command */
+        name = stringtok(command + stringlen("setenv") + 1, " ");
+        value = stringtok(NULL, " ");
+        if (!name || !value) {
+            /* Handle invalid command format */
+            write(STDERR_FILENO, "Invalid command format\n", 23);
+            return;
+        }
+
+        setenv(name, value, 1);
+	print_environment("print");
+    } else if (strstr(command, "unsetenv") == command) {
+        /* Process unsetenv command */
+        name = stringtok(command + stringlen("unsetenv") + 1, " ");
+        if (!name) {
+            /* Handle invalid command format */
+            write(STDERR_FILENO, "Invalid command format\n", 23);
+            return;
+        }
+        trackunset = unsetenv(name);
+        if (trackunset == -1) {
+            /* Handle invalid environment */
+            write(STDERR_FILENO, "Invalid environment\n", 20);
+        }
+    } else {
+        /* Handle unknown command */
+        write(STDERR_FILENO, "Unknown command\n", 16);
+    }
+
+}
+

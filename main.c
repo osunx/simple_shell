@@ -72,7 +72,7 @@ int main(int argc, char *argv[])
 	   execute_with_variable_replacement(command);
 	} else if (strsearch(command, "exit") != 0) {
             execute_exit(command);
-        } else if (stringtwocmp(command, "env", 3) == 0) {
+        } else if (stringcmp(command, "env") == 0) {
             execute_env();
         } else if (stringtwocmp(command, "cd", 2) == 0) {
             execute_cd(command);
@@ -80,7 +80,11 @@ int main(int argc, char *argv[])
             execute_separator(command);
         } else if (strstr(command, delim) != NULL) {
             execute_logical_operator(command);
-        } else {
+        } else if (strsearch(command, "setenv") != 0 ||
+		strsearch(command, "unsetenv") != 0) {
+		process_env_command(command);
+	}
+	else {
             /* Execute the command */
             execute_command(command);
         }
