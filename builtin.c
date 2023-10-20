@@ -164,7 +164,7 @@ int execute_logical_operator(char *command) {
         }
 
         /* Execute the command and check the status based on the result */
-        execution_status = run_system(trimmed_token);
+        execution_status = system(trimmed_token);
         if (!result && execution_status == 0) {
             return (0);
         } else if (result && execution_status != 0) {
