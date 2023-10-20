@@ -167,11 +167,11 @@ int execute_logical_operator(char *command) {
         execution_status = system(trimmed_token);
         if (execution_status == 0) {
             if (!isInteractiveMode()) {
-		exit(2);
+		exit(0);
 	    }
         } else if (execution_status != 0) {
 	    if (!isInteractiveMode()) {
-               exit(1);
+               exit(2);
 	    }
         }
 
