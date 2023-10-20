@@ -257,6 +257,7 @@ int get_system(char *command)
     pid_t pid;
     int status;
     int exit_status = 0; /** Initialize with an error value **/
+    int track = 0;
 
     /** Create the environment for the child process **/
     char **envp = create_environment();
@@ -279,11 +280,11 @@ int get_system(char *command)
         args[3] = NULL; /** Null-terminate the args array **/
 
         /** Execute the command using execve **/
-       if (execve("/bin/sh", args, envp) == -1) {
+       track = execve("/bin/sh", args, envp);
+       if (track != 0) {
           /** execve only returns if an error occurred **/
           free_environment(envp);
-	  exit_status = -1;
-	  return (exit_status);
+	  return (track);
        }
     }
     else

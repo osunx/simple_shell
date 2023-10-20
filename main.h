@@ -104,7 +104,7 @@ char* incrementString(char *numStr);
 void execute_exit(char *input);
 void execute_env(void);
 void execute_separator(char *input);
-int execute_logical_operator(char *command);
+void execute_logical_operator(char *command);
 
 /* Alias function prototypes */
 size_t charsBeforeWord(char *string, char *word);

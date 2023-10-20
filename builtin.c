@@ -125,18 +125,20 @@ command = stringtok(NULL, ";\n");
 *
 * @command: The input commands.
 * Function to execute commands based on logical operators && and ||
-* Return - status
 **/
-int execute_logical_operator(char *command) {
+void execute_logical_operator(char *command) {
     char *token;
-    char *delimiter = "&&||";
+    char *delimiter = "&&";
     int result = 1;
-    char *trimmed_token;
+    char *trimmed_token ;
     char *end;
     int execution_status;
+    char *or_token;
+    char *second_command;
+    int or_execution_status;
 
-    /* Tokenize the command based on delimiters && and || */
-    token = strtok(command, delimiter);
+    /* Tokenize the command based on delimiters && */
+    token = stringtok(command, delimiter);
 
     while (token != NULL) {
         /* Remove leading and trailing white spaces */
@@ -150,33 +152,35 @@ int execute_logical_operator(char *command) {
             *end-- = '\0';
         }
 
-        /* Check if the token is && or || */
-        if (strcmp(trimmed_token, "&&") == 0) {
-            /* Continue to the next token */
-            token = strtok(NULL, delimiter);
-            continue;
-        } else if (strcmp(trimmed_token, "||") == 0) {
-            /* Set the result for the || operator */
-            result = 0;
-            /* Continue to the next token */
-            token = stringtok(NULL, delimiter);
-            continue;
-        }
-
-        /* Execute the command and check the status based on the result */
         execution_status = get_system(trimmed_token);
-        if (!result && execution_status == 0) {
-            return (0);
-        } else if (result && execution_status != 0) {
-            if (isInteractiveMode()) {
+        if (execution_status == -1) {
+            if (isInteractiveMode() && errno == ENOENT) {
+                free(command);
                 exit(2);
             }
-	    return (2);
+        } else if (execution_status != 0) {
+            result = 0;
         }
 
-        /* Move to the next token */
         token = stringtok(NULL, delimiter);
     }
 
-    return (result);
+    if (!result) {
+        /* If any command failed, execute the second part after || */
+        or_token = strstr(command, "||");
+        if (or_token != NULL) {
+            second_command = or_token + 2; /* Skip the || */
+            /* Remove leading and trailing white spaces */
+            while (*second_command == ' ') {
+                ++second_command;
+            }
+            or_execution_status = get_system(second_command);
+            if (or_execution_status == -1) {
+                if (isInteractiveMode() && errno == ENOENT) {
+                    free(command);
+                    exit(2);
+                }
+            }
+        }
+    }
 }
