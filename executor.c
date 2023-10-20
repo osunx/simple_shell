@@ -282,6 +282,8 @@ int get_system(char *command)
        if (execve("/bin/sh", args, envp) == -1) {
           /** execve only returns if an error occurred **/
           free_environment(envp);
+	  exit_status = -1;
+	  return (exit_status);
        }
     }
     else
