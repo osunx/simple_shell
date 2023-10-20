@@ -42,14 +42,14 @@ char *startsWithPrefix(char *input);
 char *concatTokens(char **tokens, char *separator);
 void handle_errno(char *program_nam);
 
-/*String functions prototype*/
+/* String functions prototype */
 char *stringcpy(char *dest, const char *src);
 int stringlen(const char *str);
 int stringcmp(const char *s1, const char *s2);
 char *stringcat(char *dest, const char *src);
 char *stringtok(char *str, char *delim);
 
-/*Morestring functions prototypes*/
+/* Morestring functions prototypes */
 char *stringdup(const char *str);
 int wputchar(int chars);
 void wputs(char *str);
