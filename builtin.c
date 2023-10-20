@@ -165,16 +165,13 @@ int execute_logical_operator(char *command) {
 
         /* Execute the command and check the status based on the result */
         execution_status = get_system(trimmed_token);
-        if (execution_status == 0) {
-            if (!isInteractiveMode()) {
-		free(command);
-		exit(0);
-	    }
-        } else if (execution_status != 0) {
-	    if (!isInteractiveMode()) {
-	       free(command);
-               exit(2);
-	    }
+        if (!result && execution_status == 0) {
+            return (0);
+        } else if (result && execution_status != 0) {
+            if (isInteractiveMode()) {
+                exit(2);
+            }
+	    return (2);
         }
 
         /* Move to the next token */
