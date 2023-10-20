@@ -124,13 +124,13 @@ command = stringtok(NULL, ";\n");
 * execute_logical_operators - Execute commands with logical operators.
 *
 * @command: The input commands.
-* Function to execute commands based on logical operators && and ||
 **/
+
 void execute_logical_operator(char *command) {
     char *token;
     char *delimiter = "&&";
     int result = 1;
-    char *trimmed_token ;
+    char *trimmed_token;
     char *end;
     int execution_status;
     char *or_token;
@@ -138,7 +138,7 @@ void execute_logical_operator(char *command) {
     int or_execution_status;
 
     /* Tokenize the command based on delimiters && */
-    token = stringtok(command, delimiter);
+    token = strtok(command, delimiter);
 
     while (token != NULL) {
         /* Remove leading and trailing white spaces */
@@ -152,6 +152,12 @@ void execute_logical_operator(char *command) {
             *end-- = '\0';
         }
 
+        /* Check for || in the trimmed token and skip it */
+        if (strstr(trimmed_token, "||") != NULL) {
+            token = strtok(NULL, delimiter);
+            continue;
+        }
+
         execution_status = get_system(trimmed_token);
         if (execution_status == -1) {
             if (isInteractiveMode() && errno == ENOENT) {
@@ -162,7 +168,7 @@ void execute_logical_operator(char *command) {
             result = 0;
         }
 
-        token = stringtok(NULL, delimiter);
+        token = strtok(NULL, delimiter);
     }
 
     if (!result) {
@@ -183,4 +189,62 @@ void execute_logical_operator(char *command) {
             }
         }
     }
+}
+
+
+
+
+
+/**
+ * execute_with_variable_replacement - Execute a command with variable replacement
+ * @command: The command to execute
+ *
+ * Return: 0 on successful execution, 1 on failure.
+**/
+int execute_with_variable_replacement(char *command) {
+    FILE *status_file;
+    char *position;
+    char *buffer;
+    size_t buffer_size = 1024;
+    int exit_status;
+
+    buffer = (char *)malloc(buffer_size * sizeof(char));
+    if (buffer == NULL) {
+        fprintf(stderr, "Memory allocation failed\n");
+        return (1); /* Return an error value indicating failure */
+    }
+
+    /* Replace $$ with the process id */
+    while ((position = strstr(command, "$$")) != NULL) {
+        *position = '\0';
+        snprintf(buffer, buffer_size, "%s%d%s", command, getpid(), position + 2);
+        strcpy(command, buffer);
+    }
+
+    /* Replace $? with the exit status of the last command */
+    while ((position = strstr(command, "$?")) != NULL) {
+        *position = '\0';
+        system("echo $? > .hsh_status");
+        status_file = fopen(".hsh_status", "r");
+        fscanf(status_file, "%d", &exit_status);
+        fclose(status_file);
+        snprintf(buffer, buffer_size, "%s%d%s", command, exit_status, position + 2);
+        strcpy(command, buffer);
+    }
+
+    /* Replace $PATH with the actual PATH environment variable */
+    while ((position = strstr(command, "$PATH")) != NULL) {
+        *position = '\0';
+        snprintf(buffer, buffer_size, "%s%s%s", command, getenv("PATH"), position + 5);
+        strcpy(command, buffer);
+    }
+
+    /* Execute the command */
+    if (system(command) == -1) {
+        free(buffer);
+        return (1); /* Return an error value indicating failure */
+    }
+
+    free(buffer); /* Free the dynamically allocated memory */
+    return (0); /* Return 0 on successful execution */
 }

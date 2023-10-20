@@ -36,6 +36,7 @@ int main(int argc, char *argv[])
   char *command;
   char *delim = "&&||";
   char *delimone = ";";
+  char *delimtwo = "$$ $?";
   char *cmd = NULL;
 
   /* Ensure the program is called with correct arguments */
@@ -67,7 +68,10 @@ int main(int argc, char *argv[])
         }
 
         /* Check and execute built-in commands */
-        if (stringtwocmp(command, "exit", 4) == 0) {
+	if (containschars(command, delimtwo) != 0) {
+	   execute_with_variable_replacement(command);
+	   continue;
+	} else if (stringtwocmp(command, "exit", 4) == 0) {
             execute_exit(command);
         } else if (stringtwocmp(command, "env", 3) == 0) {
             execute_env();
@@ -75,11 +79,11 @@ int main(int argc, char *argv[])
             execute_cd(command);
         } else if (containschars(command, delimone) == 1) {
             execute_separator(command);
-        } else if (containschars(command, delim) == 1) {
+        } else if (strstr(command, delim) != NULL) {
             execute_logical_operator(command);
         } else {
             /* Execute the command */
-            execute_command(command);
+            /*execute_command(command);*/
         }
         if (command != NULL) {
            free(command);
