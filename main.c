@@ -82,7 +82,7 @@ int main(int argc, char *argv[])
             execute_logical_operator(command);
         } else {
             /* Execute the command */
-            /*execute_command(command);*/
+            execute_command(command);
         }
         if (command != NULL) {
            free(command);
