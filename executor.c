@@ -256,7 +256,7 @@ int get_system(char *command)
 {
     pid_t pid;
     int status;
-    int exit_status = 2; /** Initialize with an error value **/
+    int exit_status = 0; /** Initialize with an error value **/
 
     /** Create the environment for the child process **/
     char **envp = create_environment();
@@ -282,8 +282,9 @@ int get_system(char *command)
        if (execve("/bin/sh", args, envp) == -1) {
           /** execve only returns if an error occurred **/
           free_environment(envp);
-          handle_errno(command);
-
+	  if (errno == ENOENT) {
+              exit(2);
+	  }
        }
     }
     else
