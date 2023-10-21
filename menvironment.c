@@ -120,13 +120,13 @@ void process_env_command(char *command) {
 	print_environment("print");
     } else if (strstr(command, "unsetenv") == command) {
         /* Process unsetenv command */
-        value = stringtok(command + stringlen("unsetenv") + 1, " ");
-        if (!value) {
+        name = stringtok(command + stringlen("unsetenv") + 1, " ");
+        if (!name) {
             /* Handle invalid command format */
             write(STDERR_FILENO, "Invalid command format\n", 23);
             return;
         }
-        trackunset = unsetenv(value);
+        trackunset = unsetenv(name);
         if (trackunset == -1) {
             /* Handle invalid environment */
             write(STDERR_FILENO, "Invalid environment\n", 20);

@@ -87,29 +87,33 @@ void displayHostName(void) {
  * Read input from stdin using getline.
  * @return The input string or NULL if nothing was read.
  */
-char *read_command()
-{
-char *input = NULL;
-size_t len = 0;
-ssize_t read;
-/* write(STDOUT_FILENO, "Enter a command: ", 17); */
-         read = getline(&input, &len, stdin);
-        if (read == -1)
-        {
-                free(input);
-		if (isInteractiveMode()) {
-                   handle_errno("EOF");
-		}
-	return(NULL);
+char *read_command() {
+    char *input = NULL;
+    size_t len = 0, i;
+    ssize_t read;
+    /* write(STDOUT_FILENO, "Enter a command: ", 17); */
+    read = getline(&input, &len, stdin);
+    if (read == -1) {
+        free(input);
+        if (isInteractiveMode()) {
+            handle_errno("EOF");
         }
+        return(NULL);
+    }
 
-                /*Removal of trailing newline character*/
-        if (read > 0 && input[read - 1] == '\n')
-        {
-                input[read - 1] = '\0';
+    /* Removal of trailing newline character */
+    if (read > 0 && input[read - 1] == '\n') {
+        input[read - 1] = '\0';
+    }
 
+    /* Remove comments */
+    for (i = 0; i < strlen(input); i++) {
+        if (input[i] == '#') {
+            input[i] = '\0'; /* Replace the '#' with null character to truncate the string */
+            break; /* Break from the loop since the comment symbol has been found */
         }
-return (input);
+    }
+    return (input);
 }
 
 
