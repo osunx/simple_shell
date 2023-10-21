@@ -96,6 +96,7 @@ char *get_environment(const char *name);
 int strinprintf(char *str, size_t size, const char *format, ...);
 int stringtwocmp(const char *str1, const char *str2, size_t n);
 void process_env_command(char *command);
+void execute_commands_from_file(char *filename);
 
 /*incrementString or write it*/
 void* memoryset(void* ptr, int value, size_t num);

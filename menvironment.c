@@ -138,3 +138,41 @@ void process_env_command(char *command) {
 
 }
 
+
+/**
+ * execute_commands_from_file - Executes the commands from a file.
+ * @filename: The name of the file containing the commands.
+ *
+ * This function opens a file, reads the commands line by line, and executes them.
+ * Memory is allocated for each line, and it is freed after execution.
+ * The function displays an error message if the file cannot be opened.
+ *
+ * Return: This function does not return any value.
+ */
+void execute_commands_from_file(char *filename) {
+    FILE *file;  /* File pointer to open the file */
+    char *line = NULL;  /* Dynamically allocated buffer to store each line from the file */
+    size_t len = 0;  /* Initial length of the line */
+    ssize_t read;  /* To store the number of characters read */
+
+    /* Open the file in read mode */
+    file = fopen(filename, "r");
+    if (file == NULL) {
+        write(STDERR_FILENO, "./hsh: 0: Can't open ", 21);
+        write(STDERR_FILENO, filename, stringlen(filename));
+        write(STDERR_FILENO, "\n", 1);
+        exit(EXIT_FAILURE);  /* Terminate the program with an error if the file cannot be opened */
+    }
+
+    /* Read each line from the file and execute it*/
+    while ((read = getline(&line, &len, file)) != -1) {
+        get_system(line);  /* Execute each line from the file using the get_system call */
+    }
+
+    if (line) {
+        free(line);  /* Free the dynamically allocated memory */
+    }
+
+    fclose(file);  /* Close the file after reading and executing the commands */
+}
+

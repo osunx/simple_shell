@@ -39,20 +39,17 @@ int main(int argc, char *argv[])
   char *delimtwo = "$$ $?";
   char *cmd = NULL;
 
-  /* Ensure the program is called with correct arguments */
-  if (argc != 1) {
-     write(STDERR_FILENO, "Usage: ", 7);
-     write(STDERR_FILENO, argv[0], strlen(argv[0]));
-     write(STDERR_FILENO, "\n", 1);
-     return( EXIT_FAILURE);
-  }
 
    while (1)
    {
+       if (argc == 2) {
+           execute_commands_from_file(argv[1]);
+	   break;
+       }
         /* Display user name */
         if (isInteractiveMode()) {
             displayHostName();
-        }
+	    }
 
         /* Get user input */
         cmd = read_command();
